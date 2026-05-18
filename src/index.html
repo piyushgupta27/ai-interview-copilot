@@ -367,6 +367,10 @@
   #btn-recover:hover { background: #fbbf24; }
   #btn-discard { background: rgba(255,255,255,0.06); color: var(--slate-300); border: 1px solid rgba(255,255,255,0.1); }
   #btn-discard:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
+  #btn-tab-capture { background: var(--teal); color: #fff; }
+  #btn-tab-capture:hover { background: var(--teal-bright); }
+  #btn-tab-skip { background: rgba(255,255,255,0.06); color: var(--slate-300); border: 1px solid rgba(255,255,255,0.1); }
+  #btn-tab-skip:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
 
   /* ── Responsive ─────────────────────────────────── */
   @media (max-width: 460px) {
@@ -395,6 +399,23 @@
 <!-- Bookmark toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Tab audio capture prompt -->
+<div id="tab-modal" class="modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">🎧</div>
+    <div class="modal-title">Capture both sides?</div>
+    <div class="modal-body" id="tab-modal-body">
+      Chrome will show a screen picker.<br>
+      Select your <strong>Meet / Zoom / Teams tab</strong> and make sure
+      <strong>"Share audio"</strong> is checked at the bottom.
+    </div>
+    <div class="modal-actions">
+      <button id="btn-tab-capture">Share tab audio</button>
+      <button id="btn-tab-skip">Skip — mic only</button>
+    </div>
+  </div>
+</div>
+
 <!-- Crash recovery modal -->
 <div id="recovery-modal" class="modal" style="display:none">
   <div class="modal-box">
@@ -421,6 +442,9 @@
       </div>
       <div class="badge badge-off" id="badge-backup">
         <span class="badge-dot"></span><span class="badge-label">Backup</span>
+      </div>
+      <div class="badge badge-off" id="badge-interviewer">
+        <span class="badge-dot"></span><span class="badge-label">Interviewer</span>
       </div>
     </div>
     <!-- Mic level meter — shows only when recording -->
@@ -574,6 +598,9 @@
   let mediaRecorder  = null;
   let recordedChunks = [];
   let micStream      = null;
+  let tabStream      = null;
+  let mergeCtx       = null;
+  let hasTabAudio    = false;
   let isRecording    = false;
   let recStart       = null;
   let lastBackupTime = null;
@@ -615,6 +642,11 @@
     badgeMic:          $('badge-mic'),
     badgeTranscript:   $('badge-transcript'),
     badgeBackup:       $('badge-backup'),
+    badgeInterviewer:  $('badge-interviewer'),
+    tabModal:          $('tab-modal'),
+    tabModalBody:      $('tab-modal-body'),
+    btnTabCapture:     $('btn-tab-capture'),
+    btnTabSkip:        $('btn-tab-skip'),
     micMeterWrap:      $('mic-meter-wrap'),
     micMeter:          $('mic-meter'),
     transcriptPreview: $('transcript-preview'),
@@ -733,6 +765,14 @@
       const ago = lastBackupTime ? Math.floor((Date.now() - lastBackupTime) / 1000) : null;
       setBadge(els.badgeBackup, ago !== null && ago > 35 ? 'warn' : 'ok',
         ago !== null ? `Backup: ${ago}s ago` : 'Backup: OK');
+    }
+
+    if (!isRecording) {
+      setBadge(els.badgeInterviewer, 'off', 'Interviewer');
+    } else if (hasTabAudio) {
+      setBadge(els.badgeInterviewer, 'ok', 'Interviewer: On');
+    } else {
+      setBadge(els.badgeInterviewer, 'warn', 'Interviewer: Mic only');
     }
   }
 
@@ -964,6 +1004,46 @@
     transcriptOk = false; lastResultTime = null;
   }
 
+  // ── Tab audio capture ─────────────────────────────────────────────────
+  async function requestTabAudio() {
+    if (!navigator.mediaDevices?.getDisplayMedia) return null;
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        audio: true,
+        video: { width: 1, height: 1 }
+      });
+      stream.getVideoTracks().forEach(t => t.stop());
+      if (!stream.getAudioTracks().length) {
+        stream.getTracks().forEach(t => t.stop());
+        return null;
+      }
+      return stream;
+    } catch { return null; }
+  }
+
+  function showTabModal() {
+    return new Promise(resolve => {
+      if (!navigator.mediaDevices?.getDisplayMedia) { resolve(null); return; }
+      els.tabModal.style.display = 'flex';
+      els.btnTabCapture.onclick = async () => {
+        els.tabModal.style.display = 'none';
+        resolve(await requestTabAudio());
+      };
+      els.btnTabSkip.onclick = () => {
+        els.tabModal.style.display = 'none';
+        resolve(null);
+      };
+    });
+  }
+
+  function mergeStreams(mic, tab) {
+    const ctx  = new AudioContext();
+    const dest = ctx.createMediaStreamDestination();
+    ctx.createMediaStreamSource(mic).connect(dest);
+    ctx.createMediaStreamSource(tab).connect(dest);
+    return { ctx, merged: dest.stream };
+  }
+
   // ── Permission monitoring ─────────────────────────────────────────────
   async function watchMicPermission() {
     if (!navigator.permissions) return;
@@ -990,8 +1070,28 @@
     }
 
     recordedChunks = []; transcriptLines = []; bookmarks = [];
+    hasTabAudio = false;
 
-    try { mediaRecorder = new MediaRecorder(micStream); }
+    // Offer tab audio capture (Chrome only; skip on Firefox/Safari)
+    const tab = await showTabModal();
+    if (tab) {
+      try {
+        const { ctx, merged } = mergeStreams(micStream, tab);
+        mergeCtx  = ctx;
+        tabStream = tab;
+        hasTabAudio = true;
+        // Use merged stream for recording; keep micStream for meter + speech
+        var recordStream = merged;
+      } catch {
+        // Merge failed — fall back to mic only
+        tab.getTracks().forEach(t => t.stop());
+        var recordStream = micStream;
+      }
+    } else {
+      var recordStream = micStream;
+    }
+
+    try { mediaRecorder = new MediaRecorder(recordStream); }
     catch {
       alert('MediaRecorder not supported. Use Chrome or Edge.');
       micStream.getTracks().forEach(t => t.stop()); return false;
@@ -1036,7 +1136,10 @@
     } else if (!download && sessionId) {
       dbDelete(sessionId);
     }
-    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    if (micStream)  { micStream.getTracks().forEach(t => t.stop());  micStream  = null; }
+    if (tabStream)  { tabStream.getTracks().forEach(t => t.stop());   tabStream  = null; }
+    if (mergeCtx)   { try { mergeCtx.close(); } catch {} mergeCtx = null; }
+    hasTabAudio = false;
     backupOk = false;
     updateBadges(); renderTranscriptPreview();
   }
