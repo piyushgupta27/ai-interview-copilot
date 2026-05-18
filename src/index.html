@@ -1071,6 +1071,7 @@
   els.resetBtn.addEventListener('click', resetAll);
 
   document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.key === 's' || e.key === 'S') startCall();
     else if (e.key === 'r' || e.key === 'R') resetAll();
