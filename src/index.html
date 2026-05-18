@@ -9,26 +9,26 @@
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
 
   :root {
-    --navy:       #0f172a;
-    --slate-900:  #0b1220;
-    --slate-800:  #1e293b;
-    --slate-700:  #334155;
-    --slate-600:  #475569;
-    --slate-500:  #64748b;
-    --slate-400:  #94a3b8;
-    --slate-300:  #cbd5e1;
-    --slate-200:  #e2e8f0;
-    --slate-100:  #f1f5f9;
-    --teal:       #0d9488;
-    --teal-bright:#14b8a6;
-    --amber:      #f59e0b;
-    --amber-glow: rgba(245,158,11,0.2);
-    --orange:     #ea580c;
-    --orange-glow:rgba(234,88,12,0.2);
-    --rose:       #e11d48;
-    --rose-glow:  rgba(225,29,72,0.22);
-    --green:      #10b981;
-    --violet:     #a78bfa;
+    --navy:        #0f172a;
+    --slate-900:   #0b1220;
+    --slate-800:   #1e293b;
+    --slate-700:   #334155;
+    --slate-600:   #475569;
+    --slate-500:   #64748b;
+    --slate-400:   #94a3b8;
+    --slate-300:   #cbd5e1;
+    --slate-200:   #e2e8f0;
+    --slate-100:   #f1f5f9;
+    --teal:        #0d9488;
+    --teal-bright: #14b8a6;
+    --amber:       #f59e0b;
+    --amber-glow:  rgba(245,158,11,0.2);
+    --orange:      #ea580c;
+    --orange-glow: rgba(234,88,12,0.2);
+    --rose:        #e11d48;
+    --rose-glow:   rgba(225,29,72,0.22);
+    --green:       #10b981;
+    --violet:      #a78bfa;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -94,8 +94,7 @@
     transition: all 0.3s;
   }
   .badge-dot {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--slate-700);
     flex: 0 0 auto;
@@ -109,51 +108,47 @@
   .badge-err  .badge-dot { background: var(--rose); animation: blink 1.4s ease-in-out infinite; }
   .badge-off  { opacity: 0.35; }
 
+  /* ── Mic level meter ────────────────────────────── */
+  .mic-meter-wrap {
+    margin-top: 8px;
+    height: 22px;
+    background: rgba(255,255,255,0.025);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.04);
+    display: none;
+  }
+  .mic-meter-wrap.active { display: block; }
+  #mic-meter { display: block; width: 100%; height: 100%; }
+
   /* ── Alert banner ───────────────────────────────── */
   .alert-banner {
     display: none;
     border-radius: 14px;
     padding: 14px 18px;
     text-align: center;
-    transition: all 0.3s;
   }
   .alert-banner.active { display: block; }
   .alert-eyebrow {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2.2px;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-    opacity: 0.85;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 2.2px; text-transform: uppercase;
+    margin-bottom: 5px; opacity: 0.85;
   }
-  .alert-text {
-    font-size: 16px;
-    font-weight: 800;
-    line-height: 1.3;
-    margin-bottom: 5px;
-  }
-  .alert-detail {
-    font-size: 12px;
-    line-height: 1.45;
-    font-weight: 500;
-    opacity: 0.85;
-  }
+  .alert-text   { font-size: 16px; font-weight: 800; line-height: 1.3; margin-bottom: 5px; }
+  .alert-detail { font-size: 12px; line-height: 1.45; font-weight: 500; opacity: 0.85; }
   .alert-banner.upcoming {
     background: linear-gradient(135deg, var(--amber-glow), rgba(245,158,11,0.08));
-    border: 1px solid var(--amber);
-    color: var(--amber);
+    border: 1px solid var(--amber); color: var(--amber);
   }
   .alert-banner.action {
     background: linear-gradient(135deg, var(--orange-glow), rgba(234,88,12,0.1));
-    border: 1px solid var(--orange);
-    color: #fdba74;
+    border: 1px solid var(--orange); color: #fdba74;
     animation: glow-orange 1.6s ease-in-out infinite;
   }
   .alert-banner.action .alert-text { color: #fed7aa; }
   .alert-banner.overdue {
     background: linear-gradient(135deg, var(--rose-glow), rgba(225,29,72,0.1));
-    border: 1px solid var(--rose);
-    color: #fda4af;
+    border: 1px solid var(--rose); color: #fda4af;
     animation: glow-rose 1.2s ease-in-out infinite;
   }
   .alert-banner.overdue .alert-text { color: #fecdd3; }
@@ -166,28 +161,15 @@
     0%,100% { box-shadow: 0 0 0 0 rgba(225,29,72,0); }
     50%      { box-shadow: 0 0 32px 6px rgba(225,29,72,0.5); }
   }
-  @keyframes blink {
-    0%,100% { opacity: 1; }
-    50%      { opacity: 0.35; }
-  }
-  @keyframes pulse {
-    0%,100% { opacity: 1; }
-    50%      { opacity: 0.5; }
-  }
+  @keyframes blink  { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes pulse  { 0%,100% { opacity: 1; } 50% { opacity: 0.5;  } }
 
   /* ── Hero timer ─────────────────────────────────── */
-  .hero {
-    text-align: center;
-    padding: 8px 0 4px;
-  }
+  .hero { text-align: center; padding: 8px 0 4px; }
   .phase {
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: 2.4px;
-    text-transform: uppercase;
-    color: var(--slate-500);
-    margin-bottom: 8px;
-    transition: color 0.3s;
+    font-size: 10.5px; font-weight: 800;
+    letter-spacing: 2.4px; text-transform: uppercase;
+    color: var(--slate-500); margin-bottom: 8px; transition: color 0.3s;
   }
   .phase.opening    { color: var(--green); }
   .phase.discussion { color: var(--teal-bright); }
@@ -198,12 +180,9 @@
 
   .elapsed {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 88px;
-    font-weight: 700;
-    line-height: 0.95;
-    letter-spacing: -3px;
-    color: var(--slate-100);
-    transition: color 0.4s;
+    font-size: 88px; font-weight: 700;
+    line-height: 0.95; letter-spacing: -3px;
+    color: var(--slate-100); transition: color 0.4s;
   }
   .elapsed.warm    { color: var(--amber); }
   .elapsed.hot     { color: var(--orange); }
@@ -212,12 +191,9 @@
 
   .pct {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--slate-400);
-    margin-top: 6px;
-    letter-spacing: 0.5px;
-    transition: color 0.3s;
+    font-size: 14px; font-weight: 700;
+    color: var(--slate-400); margin-top: 6px;
+    letter-spacing: 0.5px; transition: color 0.3s;
   }
   .pct.warm    { color: var(--amber); }
   .pct.hot     { color: var(--orange); }
@@ -225,88 +201,65 @@
   .pct.stopped { color: var(--slate-600); }
 
   .zone-label {
-    font-size: 12px;
-    color: var(--slate-500);
-    font-weight: 500;
-    margin-top: 6px;
-    line-height: 1.4;
+    font-size: 12px; color: var(--slate-500);
+    font-weight: 500; margin-top: 6px; line-height: 1.4;
   }
   .total-cap {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--slate-700);
-    margin-top: 4px;
+    font-size: 11px; color: var(--slate-700); margin-top: 4px;
   }
 
   /* ── Progress bar ───────────────────────────────── */
   .progress-track {
-    height: 4px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 2px;
-    overflow: hidden;
+    height: 4px; background: rgba(255,255,255,0.05);
+    border-radius: 2px; overflow: hidden;
   }
   .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, var(--green), var(--teal-bright) 30%, var(--amber) 67%, var(--orange) 89%, var(--rose) 100%);
-    width: 0;
-    transition: width 0.5s;
+    width: 0; transition: width 0.5s;
   }
+  .progress-bar.bookmark-flash { background: var(--amber); transition: background 0s; }
 
   /* ── Milestones ─────────────────────────────────── */
   .milestones-section {
     background: rgba(255,255,255,0.025);
     border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 14px;
-    padding: 12px 14px;
+    border-radius: 14px; padding: 12px 14px;
   }
   .section-label {
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--slate-500);
-    margin-bottom: 8px;
+    font-size: 9.5px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--slate-500); margin-bottom: 8px;
   }
   .milestone-timeline { display: flex; flex-direction: column; gap: 2px; }
   .ms-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 0;
-    font-size: 11.5px;
-    line-height: 1.35;
-    transition: all 0.4s;
-    border-radius: 6px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 0; font-size: 11.5px; line-height: 1.35;
+    transition: all 0.4s; border-radius: 6px;
   }
   .ms-icon { width: 14px; flex: 0 0 auto; text-align: center; font-weight: 800; font-size: 11px; }
   .ms-time {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    font-weight: 700;
-    width: 42px;
-    flex: 0 0 auto;
+    font-size: 10.5px; font-weight: 700; width: 42px; flex: 0 0 auto;
   }
-  .ms-text  { flex: 1; }
-  .ms-eta   { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; flex: 0 0 auto; color: var(--slate-500); }
+  .ms-text { flex: 1; }
+  .ms-eta  { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; flex: 0 0 auto; color: var(--slate-500); }
 
   .ms-row.done { opacity: 0.45; }
   .ms-row.done .ms-icon { color: var(--green); }
   .ms-row.done .ms-time { color: var(--slate-500); text-decoration: line-through; }
   .ms-row.done .ms-text { color: var(--slate-500); }
-
   .ms-row.current {
     background: linear-gradient(90deg, rgba(245,158,11,0.12), rgba(245,158,11,0.02));
     border-left: 3px solid var(--amber);
-    padding: 8px 10px 8px 11px;
-    margin: 2px 0 2px -2px;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 8px 10px 8px 11px; margin: 2px 0 2px -2px;
+    font-size: 13px; font-weight: 600;
   }
   .ms-row.current .ms-icon { color: var(--amber); font-size: 13px; }
   .ms-row.current .ms-time { color: var(--amber); font-size: 11.5px; }
   .ms-row.current .ms-text { color: var(--slate-100); }
   .ms-row.current .ms-eta  { color: var(--amber); }
-
   .ms-row.future     .ms-icon { color: var(--slate-700); }
   .ms-row.future     .ms-time { color: var(--slate-600); }
   .ms-row.future     .ms-text { color: var(--slate-500); }
@@ -315,120 +268,104 @@
   .ms-row.future-far .ms-time { color: var(--slate-700); }
   .ms-row.future-far .ms-text { color: var(--slate-600); }
 
+  /* ── Live transcript preview ────────────────────── */
+  .transcript-preview {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px; padding: 9px 12px;
+    min-height: 46px; display: none;
+  }
+  .transcript-preview.active { display: block; }
+  .transcript-preview .section-label { margin-bottom: 5px; }
+  .transcript-lines {
+    font-size: 11px; color: var(--slate-400);
+    line-height: 1.55; font-style: italic;
+  }
+  .transcript-lines .t-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; color: var(--slate-600); font-style: normal;
+    margin-right: 4px;
+  }
+  .transcript-lines .t-bookmark { color: var(--amber); font-style: normal; font-weight: 700; }
+  .transcript-empty { color: var(--slate-700); font-style: italic; font-size: 10.5px; }
+
   /* ── Reminder strip ─────────────────────────────── */
   .reminder-strip {
-    text-align: center;
-    font-size: 10.5px;
-    color: var(--slate-500);
-    letter-spacing: 0.4px;
-    padding: 4px 0;
+    text-align: center; font-size: 10.5px;
+    color: var(--slate-500); letter-spacing: 0.4px; padding: 4px 0;
   }
   .reminder-strip strong { color: var(--slate-300); font-weight: 700; }
 
   /* ── Controls ───────────────────────────────────── */
   .controls { display: flex; gap: 8px; }
   .ctrl {
-    border: none;
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 11.5px;
-    letter-spacing: 0.6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
+    border: none; border-radius: 10px; padding: 11px 14px;
+    font-family: inherit; font-weight: 700; font-size: 11.5px;
+    letter-spacing: 0.6px; cursor: pointer;
+    transition: all 0.15s; text-transform: uppercase;
   }
   #start-btn {
-    flex: 2;
-    background: var(--amber);
-    color: var(--navy);
+    flex: 2; background: var(--amber); color: var(--navy);
     box-shadow: 0 2px 12px var(--amber-glow);
   }
   #start-btn:hover:not(:disabled) { background: #fbbf24; transform: translateY(-1px); }
-  #start-btn.running {
-    background: rgba(255,255,255,0.06);
-    color: var(--slate-300);
-    box-shadow: none;
-  }
-  #start-btn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-  }
+  #start-btn.running { background: rgba(255,255,255,0.06); color: var(--slate-300); box-shadow: none; }
+  #start-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
   #reset-btn {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    color: var(--slate-400);
-    border: 1px solid rgba(255,255,255,0.06);
+    flex: 1; background: rgba(255,255,255,0.04);
+    color: var(--slate-400); border: 1px solid rgba(255,255,255,0.06);
   }
   #reset-btn:hover { background: rgba(255,255,255,0.08); color: var(--slate-200); }
 
   /* ── Footer ─────────────────────────────────────── */
   .footer-hint {
-    font-size: 10px;
-    color: var(--slate-700);
-    text-align: center;
-    line-height: 1.5;
-    padding-top: 4px;
+    font-size: 10px; color: var(--slate-700);
+    text-align: center; line-height: 1.6; padding-top: 4px;
     border-top: 1px solid rgba(255,255,255,0.04);
   }
   kbd {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 3px;
-    padding: 1px 5px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5px;
-    color: var(--slate-400);
-    font-weight: 600;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px; padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+    color: var(--slate-400); font-weight: 600;
   }
+
+  /* ── Bookmark toast ─────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--amber); color: var(--navy);
+    font-size: 11.5px; font-weight: 700;
+    padding: 7px 18px; border-radius: 20px;
+    opacity: 0; transition: opacity 0.18s, transform 0.18s;
+    pointer-events: none; white-space: nowrap; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── Recovery modal ─────────────────────────────── */
   .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 16px;
-    backdrop-filter: blur(4px);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 16px; backdrop-filter: blur(4px);
   }
   .modal-box {
-    background: var(--slate-800);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 28px 24px 22px;
-    max-width: 360px;
-    width: 100%;
-    text-align: center;
+    background: var(--slate-800); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 28px 24px 22px;
+    max-width: 360px; width: 100%; text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   }
-  .modal-icon   { font-size: 32px; margin-bottom: 12px; }
-  .modal-title  { font-size: 16px; font-weight: 700; color: var(--slate-100); margin-bottom: 8px; }
-  .modal-body   { font-size: 13px; color: var(--slate-400); line-height: 1.6; margin-bottom: 22px; }
+  .modal-icon  { font-size: 32px; margin-bottom: 12px; }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--slate-100); margin-bottom: 8px; }
+  .modal-body  { font-size: 13px; color: var(--slate-400); line-height: 1.6; margin-bottom: 22px; }
   .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .modal-actions button {
-    padding: 9px 18px;
-    border-radius: 8px;
-    border: none;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
+    padding: 9px 18px; border-radius: 8px; border: none;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.4px; cursor: pointer; transition: all 0.15s; text-transform: uppercase;
   }
   #btn-recover { background: var(--amber); color: var(--navy); }
   #btn-recover:hover { background: #fbbf24; }
-  #btn-discard {
-    background: rgba(255,255,255,0.06);
-    color: var(--slate-300);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
+  #btn-discard { background: rgba(255,255,255,0.06); color: var(--slate-300); border: 1px solid rgba(255,255,255,0.1); }
   #btn-discard:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
 
   /* ── Responsive ─────────────────────────────────── */
@@ -454,6 +391,9 @@
 </style>
 </head>
 <body>
+
+<!-- Bookmark toast -->
+<div class="toast" id="toast"></div>
 
 <!-- Crash recovery modal -->
 <div id="recovery-modal" class="modal" style="display:none">
@@ -483,6 +423,10 @@
         <span class="badge-dot"></span><span class="badge-label">Backup</span>
       </div>
     </div>
+    <!-- Mic level meter — shows only when recording -->
+    <div class="mic-meter-wrap" id="mic-meter-wrap">
+      <canvas id="mic-meter"></canvas>
+    </div>
   </header>
 
   <div class="alert-banner" id="alert-banner">
@@ -506,6 +450,14 @@
     <div class="milestone-timeline" id="milestone-timeline"></div>
   </div>
 
+  <!-- Live transcript preview — shows only when recording -->
+  <div class="transcript-preview" id="transcript-preview">
+    <div class="section-label">Live transcript</div>
+    <div class="transcript-lines" id="transcript-lines">
+      <span class="transcript-empty">Waiting for speech…</span>
+    </div>
+  </div>
+
   <div class="reminder-strip">
     <strong>Point first</strong> · <strong>"I"</strong> for decisions · <strong>≤2 min</strong> · Numbers beat claims
   </div>
@@ -516,7 +468,7 @@
   </div>
 
   <div class="footer-hint">
-    <kbd>S</kbd> start/pause &nbsp;·&nbsp; <kbd>R</kbd> reset
+    <kbd>S</kbd> start/pause &nbsp;·&nbsp; <kbd>R</kbd> reset &nbsp;·&nbsp; <kbd>B</kbd> bookmark &nbsp;·&nbsp; <kbd>E</kbd> export log
   </div>
 
 </div>
@@ -524,13 +476,15 @@
 <script>
 (() => {
   // ── Config ───────────────────────────────────────────────────────────
-  const ROUND_DURATION   = 45 * 60;
-  const HARD_STOP        = 60 * 60;
-  const CHUNK_INTERVAL   = 30_000; // IndexedDB save every 30s
+  const ROUND_DURATION = 45 * 60;
+  const HARD_STOP      = 60 * 60;
+  const CHUNK_INTERVAL = 30_000;
+  const LOG_KEY        = 'interview-copilot-log';
+  const LOG_MAX        = 500;
 
   const milestones = [
-    { sec:  2*60, name: 'Self-intro done',              alert: null },
-    { sec:  5*60, name: 'Context & rapport set',        alert: null },
+    { sec:  2*60, name: 'Self-intro done',           alert: null },
+    { sec:  5*60, name: 'Context & rapport set',     alert: null },
     { sec: 30*60, name: 'Queue your questions',
       alert: '"I\'d love the last 10 min for my questions — does that work?"' },
     { sec: 38*60, name: 'Closing window — pivot now',
@@ -555,19 +509,16 @@
   let db = null;
 
   function openDB() {
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
       const req = indexedDB.open(DB_NAME, DB_VER);
       req.onupgradeneeded = e => {
         const d = e.target.result;
-        if (!d.objectStoreNames.contains(STORE)) {
-          d.createObjectStore(STORE, { keyPath: 'id' });
-        }
+        if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: 'id' });
       };
-      req.onsuccess  = e => resolve(e.target.result);
-      req.onerror    = e => reject(e.target.error);
+      req.onsuccess = e => res(e.target.result);
+      req.onerror   = e => rej(e.target.error);
     });
   }
-
   function dbPut(obj) {
     if (!db) return Promise.resolve();
     return new Promise((res, rej) => {
@@ -576,17 +527,15 @@
       tx.onerror = e => rej(e.target.error);
     });
   }
-
   function dbGetAll() {
     if (!db) return Promise.resolve([]);
     return new Promise((res, rej) => {
-      const tx = db.transaction(STORE, 'readonly');
+      const tx  = db.transaction(STORE, 'readonly');
       const req = tx.objectStore(STORE).getAll();
       req.onsuccess = () => res(req.result || []);
       req.onerror   = e => rej(e.target.error);
     });
   }
-
   function dbDelete(id) {
     if (!db) return Promise.resolve();
     return new Promise((res, rej) => {
@@ -596,15 +545,30 @@
     });
   }
 
-  // ── State ────────────────────────────────────────────────────────────
-  let running      = false;
-  let hardStopped  = false;
-  let roundStart   = null;  // epoch ms, adjusted on each resume
-  let pausedAt     = null;  // epoch ms when last paused
-  let tickHandle   = null;
+  // ── Event log ────────────────────────────────────────────────────────
+  let eventLog = [];
+  function logEvent(event, data = {}) {
+    eventLog.push({ ts: Date.now(), event, ...data });
+    if (eventLog.length > LOG_MAX) eventLog.shift();
+    try { localStorage.setItem(LOG_KEY, JSON.stringify(eventLog)); } catch {}
+  }
+  function exportLog() {
+    const blob = new Blob([JSON.stringify(eventLog, null, 2)], { type: 'application/json' });
+    const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    downloadBlob(blob, `interview-log-${ts}.json`);
+    logEvent('LOG_EXPORTED');
+  }
+  // Load prior log from localStorage on init
+  try { eventLog = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch {}
 
-  let sessionId    = null;
-  let sessionObj   = null;
+  // ── State ────────────────────────────────────────────────────────────
+  let running     = false;
+  let hardStopped = false;
+  let roundStart  = null;
+  let pausedAt    = null;
+  let tickHandle  = null;
+  let sessionId   = null;
+  let sessionObj  = null;
 
   // Recording
   let mediaRecorder  = null;
@@ -615,6 +579,9 @@
   let lastBackupTime = null;
   let backupOk       = false;
 
+  // Bookmarks
+  let bookmarks = [];
+
   // Speech
   let recognition       = null;
   let transcriptLines   = [];
@@ -623,6 +590,12 @@
   let speechRetryDelay  = 1000;
   let speechRetryTimer  = null;
   let speechHealthTimer = null;
+
+  // Mic meter
+  let audioCtx    = null;
+  let analyser    = null;
+  let meterHandle = null;
+  let meterData   = null;
 
   // ── DOM ──────────────────────────────────────────────────────────────
   const $  = id => document.getElementById(id);
@@ -642,6 +615,11 @@
     badgeMic:          $('badge-mic'),
     badgeTranscript:   $('badge-transcript'),
     badgeBackup:       $('badge-backup'),
+    micMeterWrap:      $('mic-meter-wrap'),
+    micMeter:          $('mic-meter'),
+    transcriptPreview: $('transcript-preview'),
+    transcriptLines:   $('transcript-lines'),
+    toast:             $('toast'),
     recoveryModal:     $('recovery-modal'),
     recoveryBody:      $('recovery-body'),
     btnRecover:        $('btn-recover'),
@@ -649,58 +627,148 @@
   };
 
   // ── Helpers ──────────────────────────────────────────────────────────
-  const pad      = n => String(n).padStart(2, '0');
-  const fmtMMSS  = s => `${pad(Math.floor(Math.abs(s)/60))}:${pad(Math.floor(Math.abs(s)%60))}`;
+  const pad     = n => String(n).padStart(2, '0');
+  const fmtMMSS = s => `${pad(Math.floor(Math.abs(s)/60))}:${pad(Math.floor(Math.abs(s)%60))}`;
 
   function setBadge(el, state, label) {
     el.className = `badge badge-${state}`;
     el.querySelector('.badge-label').textContent = label;
   }
 
-  function updateBadges() {
-    // Mic
-    if (!isRecording) {
-      setBadge(els.badgeMic, 'off', 'Mic');
-    } else {
-      setBadge(els.badgeMic, 'ok', 'Mic: Live');
-    }
+  let toastTimer = null;
+  function showToast(msg, duration = 1800) {
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => els.toast.classList.remove('show'), duration);
+  }
 
-    // Transcript
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ── Mic level meter ──────────────────────────────────────────────────
+  function startMeter(stream) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      meterData = new Uint8Array(analyser.frequencyBinCount);
+
+      const canvas = els.micMeter;
+      const ctx    = canvas.getContext('2d');
+
+      els.micMeterWrap.classList.add('active');
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+        canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        meterHandle = requestAnimationFrame(draw);
+        analyser.getByteTimeDomainData(meterData);
+
+        const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        ctx.lineWidth   = 1.5;
+        ctx.strokeStyle = isRecording ? '#10b981' : '#334155';
+        ctx.beginPath();
+
+        const slice = w / meterData.length;
+        meterData.forEach((v, i) => {
+          const y = ((v / 128) - 1) * (h / 2) + h / 2;
+          i === 0 ? ctx.moveTo(0, y) : ctx.lineTo(i * slice, y);
+        });
+        ctx.lineTo(w, h / 2);
+        ctx.stroke();
+      }
+      draw();
+    } catch { /* AudioContext not available — meter just won't show */ }
+  }
+
+  function stopMeter() {
+    if (meterHandle) cancelAnimationFrame(meterHandle);
+    if (analyser)   { try { analyser.disconnect(); } catch {} }
+    if (audioCtx)   { try { audioCtx.close(); }     catch {} }
+    audioCtx = null; analyser = null; meterHandle = null;
+    els.micMeterWrap.classList.remove('active');
+    const ctx = els.micMeter.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, els.micMeter.width, els.micMeter.height);
+  }
+
+  // ── Badges ───────────────────────────────────────────────────────────
+  function updateBadges() {
+    setBadge(els.badgeMic,
+      !isRecording        ? 'off'  : 'ok',
+      !isRecording        ? 'Mic'  : 'Mic: Live');
+
     if (!isRecording) {
       setBadge(els.badgeTranscript, 'off', 'Transcript');
     } else if (!transcriptOk) {
       setBadge(els.badgeTranscript, 'err', 'Transcript: Off');
-    } else if (lastResultTime && Date.now() - lastResultTime > 30000) {
-      setBadge(els.badgeTranscript, 'warn', 'Transcript: Stale');
     } else if (!lastResultTime) {
       setBadge(els.badgeTranscript, 'warn', 'Transcript: Waiting');
+    } else if (Date.now() - lastResultTime > 30000) {
+      setBadge(els.badgeTranscript, 'warn', 'Transcript: Stale');
     } else {
       setBadge(els.badgeTranscript, 'ok', 'Transcript: On');
     }
 
-    // Backup
     if (!isRecording) {
       setBadge(els.badgeBackup, 'off', 'Backup');
     } else if (!backupOk) {
       setBadge(els.badgeBackup, 'warn', 'Backup: Pending');
     } else {
       const ago = lastBackupTime ? Math.floor((Date.now() - lastBackupTime) / 1000) : null;
-      const label = ago !== null ? `Backup: ${ago}s ago` : 'Backup: OK';
-      setBadge(els.badgeBackup, ago !== null && ago > 35 ? 'warn' : 'ok', label);
+      setBadge(els.badgeBackup, ago !== null && ago > 35 ? 'warn' : 'ok',
+        ago !== null ? `Backup: ${ago}s ago` : 'Backup: OK');
     }
+  }
+
+  // ── Live transcript preview ───────────────────────────────────────────
+  function renderTranscriptPreview() {
+    if (!isRecording) { els.transcriptPreview.classList.remove('active'); return; }
+    els.transcriptPreview.classList.add('active');
+
+    // Merge transcript lines and bookmarks, sort by timestamp prefix
+    const allLines = [...transcriptLines, ...bookmarks.map(b => `[${fmtMMSS(b.sec)}] ★ Bookmark`)];
+    // Sort is implicit since we push in order — just show last 2
+    const last2 = allLines.slice(-2);
+
+    if (!last2.length) {
+      els.transcriptLines.innerHTML = '<span class="transcript-empty">Waiting for speech…</span>';
+      return;
+    }
+    els.transcriptLines.innerHTML = last2.map(line => {
+      const isBookmark = line.includes('★');
+      const match = line.match(/^\[(\d+:\d+)\] (.+)$/);
+      if (match) {
+        return `<div><span class="t-time">${match[1]}</span>` +
+          `<span class="${isBookmark ? 't-bookmark' : ''}">${match[2]}</span></div>`;
+      }
+      return `<div>${line}</div>`;
+    }).join('');
   }
 
   // ── Render ───────────────────────────────────────────────────────────
   function renderHero(elapsed) {
-    const minsElapsed = Math.floor(elapsed / 60);
-    const totalMins   = Math.floor(ROUND_DURATION / 60);
-    const pct         = Math.floor((elapsed / ROUND_DURATION) * 100);
-    els.elapsed.textContent = `${minsElapsed} / ${totalMins}`;
-    els.pct.textContent     = `${pct}%`;
+    els.elapsed.textContent = `${Math.floor(elapsed/60)} / ${Math.floor(ROUND_DURATION/60)}`;
+    els.pct.textContent     = `${Math.floor((elapsed / ROUND_DURATION) * 100)}%`;
 
     const mins = elapsed / 60;
     let zone = '';
-    if (hardStopped)    zone = 'stopped';
+    if (hardStopped)     zone = 'stopped';
     else if (mins >= 45) zone = 'over';
     else if (mins >= 40) zone = 'hot';
     else if (mins >= 30) zone = 'warm';
@@ -711,21 +779,14 @@
     els.phase.className   = `phase ${phase.key}`;
     els.phase.textContent = phase.label;
 
-    if (hardStopped) {
-      els.zoneLabel.textContent = 'Hard-stopped at 60:00 · click Reset to start over';
-    } else if (!roundStart) {
-      els.zoneLabel.textContent = 'Press Start Call when the interviewer joins';
-    } else if (mins < 3) {
-      els.zoneLabel.textContent = 'Warmth · tell me about yourself · first impression';
-    } else if (mins < 30) {
-      els.zoneLabel.textContent = 'Behavioral discussion · ≤2 min answers · numbers';
-    } else if (mins < 40) {
-      els.zoneLabel.textContent = 'Steer toward closing · queue your questions';
-    } else if (mins < 45) {
-      els.zoneLabel.textContent = 'Your questions · ask about next steps';
-    } else {
-      els.zoneLabel.textContent = 'Overtime · wrap gracefully';
-    }
+    els.zoneLabel.textContent =
+      hardStopped      ? 'Hard-stopped at 60:00 · click Reset to start over' :
+      !roundStart      ? 'Press Start Call when the interviewer joins' :
+      mins < 3         ? 'Warmth · tell me about yourself · first impression' :
+      mins < 30        ? 'Behavioral discussion · ≤2 min answers · numbers' :
+      mins < 40        ? 'Steer toward closing · queue your questions' :
+      mins < 45        ? 'Your questions · ask about next steps' :
+                         'Overtime · wrap gracefully';
   }
 
   function renderProgress(elapsed) {
@@ -736,21 +797,12 @@
     const nextIdx = milestones.findIndex(m => m.sec > elapsed);
     els.milestoneTimeline.innerHTML = milestones.map((m, idx) => {
       let cls, icon, etaHtml = '';
-      if (m.sec <= elapsed) {
-        cls = 'done'; icon = '✓';
-      } else if (idx === nextIdx) {
-        cls = 'current'; icon = '◉';
-        etaHtml = `<span class="ms-eta">in ${fmtMMSS(m.sec - elapsed)}</span>`;
-      } else if (idx === nextIdx + 1) {
-        cls = 'future'; icon = '○';
-      } else {
-        cls = 'future-far'; icon = '○';
-      }
-      return `<div class="ms-row ${cls}">` +
-        `<div class="ms-icon">${icon}</div>` +
-        `<div class="ms-time">${fmtMMSS(m.sec)}</div>` +
-        `<div class="ms-text">${m.name}</div>` +
-        etaHtml + `</div>`;
+      if (m.sec <= elapsed)    { cls = 'done';       icon = '✓'; }
+      else if (idx === nextIdx) { cls = 'current';   icon = '◉'; etaHtml = `<span class="ms-eta">in ${fmtMMSS(m.sec - elapsed)}</span>`; }
+      else if (idx === nextIdx + 1) { cls = 'future'; icon = '○'; }
+      else                      { cls = 'future-far'; icon = '○'; }
+      return `<div class="ms-row ${cls}"><div class="ms-icon">${icon}</div>` +
+        `<div class="ms-time">${fmtMMSS(m.sec)}</div><div class="ms-text">${m.name}</div>${etaHtml}</div>`;
     }).join('');
   }
 
@@ -758,21 +810,15 @@
     for (const m of milestones) {
       if (!m.alert) continue;
       const gap = m.sec - elapsed;
-      if (gap > 0 && gap <= 30) {
-        return { level: 'upcoming', eyebrow: `In ${Math.ceil(gap)}s`, text: m.name, detail: m.alert };
-      }
+      if (gap > 0 && gap <= 30) return { level: 'upcoming', eyebrow: `In ${Math.ceil(gap)}s`, text: m.name, detail: m.alert };
     }
     for (const m of milestones) {
       if (!m.alert) continue;
-      if (elapsed >= m.sec && elapsed < m.sec + 60) {
-        return { level: 'action', eyebrow: 'Now', text: m.name, detail: m.alert };
-      }
+      if (elapsed >= m.sec && elapsed < m.sec + 60) return { level: 'action', eyebrow: 'Now', text: m.name, detail: m.alert };
     }
     for (const m of milestones) {
       if (!m.alert) continue;
-      if (elapsed >= m.sec + 60 && elapsed < m.sec + 120) {
-        return { level: 'overdue', eyebrow: 'Overdue', text: m.name, detail: m.alert };
-      }
+      if (elapsed >= m.sec + 60 && elapsed < m.sec + 120) return { level: 'overdue', eyebrow: 'Overdue', text: m.name, detail: m.alert };
     }
     return null;
   }
@@ -791,25 +837,34 @@
     const elapsed = (Date.now() - roundStart) / 1000;
 
     if (elapsed >= HARD_STOP && !hardStopped) {
-      hardStopped = true;
-      running = false;
+      hardStopped = true; running = false;
       clearInterval(tickHandle);
       els.startBtn.textContent = 'Hard-stopped';
       els.startBtn.classList.remove('running');
       els.startBtn.disabled = true;
-      renderHero(HARD_STOP);
-      renderProgress(HARD_STOP);
-      renderMilestones(HARD_STOP);
-      renderAlert(null);
-      updateBadges();
+      logEvent('HARD_STOP');
+      renderHero(HARD_STOP); renderProgress(HARD_STOP);
+      renderMilestones(HARD_STOP); renderAlert(null);
+      updateBadges(); renderTranscriptPreview();
       return;
     }
 
-    renderHero(elapsed);
-    renderProgress(elapsed);
-    renderMilestones(elapsed);
-    renderAlert(computeAlert(elapsed));
-    updateBadges();
+    renderHero(elapsed); renderProgress(elapsed);
+    renderMilestones(elapsed); renderAlert(computeAlert(elapsed));
+    updateBadges(); renderTranscriptPreview();
+  }
+
+  // ── Bookmark ─────────────────────────────────────────────────────────
+  function dropBookmark() {
+    if (!running || !roundStart) return;
+    const elapsed = (Date.now() - roundStart) / 1000;
+    bookmarks.push({ sec: elapsed });
+    logEvent('BOOKMARK', { elapsed: Math.floor(elapsed) });
+    showToast(`★ Bookmark at ${fmtMMSS(elapsed)}`);
+    // Brief flash on progress bar
+    els.progressBar.classList.add('bookmark-flash');
+    setTimeout(() => els.progressBar.classList.remove('bookmark-flash'), 300);
+    renderTranscriptPreview();
   }
 
   // ── Round control ─────────────────────────────────────────────────────
@@ -817,66 +872,54 @@
     if (hardStopped) return;
 
     if (running) {
-      // Pause — timer stops, recording continues
-      running  = false;
-      pausedAt = Date.now();
+      running = false; pausedAt = Date.now();
       clearInterval(tickHandle);
       els.startBtn.textContent = 'Resume';
       els.startBtn.classList.remove('running');
+      logEvent('PAUSE');
       return;
     }
 
     if (roundStart && pausedAt) {
-      // Resume — shift roundStart forward by pause duration
       const pauseDuration = Date.now() - pausedAt;
       roundStart += pauseDuration;
-      pausedAt = null;
-      running  = true;
+      pausedAt = null; running = true;
       els.startBtn.textContent = 'Pause';
       els.startBtn.classList.add('running');
       tickHandle = setInterval(tick, 250);
-      tick();
-      return;
+      logEvent('RESUME');
+      tick(); return;
     }
 
-    // First start — request mic, then kick everything off together
-    els.startBtn.textContent = 'Starting…';
-    els.startBtn.disabled    = true;
+    // First start
+    els.startBtn.textContent = 'Starting…'; els.startBtn.disabled = true;
     const ok = await startRecording();
     els.startBtn.disabled = false;
-    if (!ok) {
-      els.startBtn.textContent = 'Start Call';
-      return;
-    }
+    if (!ok) { els.startBtn.textContent = 'Start Call'; return; }
 
     roundStart = Date.now();
     sessionId  = `session-${roundStart}`;
     sessionObj = { id: sessionId, startTime: roundStart, status: 'recording', chunks: [], transcript: [] };
     await dbPut(sessionObj);
 
-    running  = true;
-    els.startBtn.textContent = 'Pause';
-    els.startBtn.classList.add('running');
+    running = true;
+    els.startBtn.textContent = 'Pause'; els.startBtn.classList.add('running');
     tickHandle = setInterval(tick, 250);
+    logEvent('START');
     tick();
   }
 
   function resetAll() {
     if (!confirm('Reset? Recording will stop and files will download.')) return;
-    running     = false;
-    hardStopped = false;
-    roundStart  = null;
-    pausedAt    = null;
+    running = false; hardStopped = false; roundStart = null; pausedAt = null;
     clearInterval(tickHandle);
     els.startBtn.textContent = 'Start Call';
-    els.startBtn.classList.remove('running');
-    els.startBtn.disabled    = false;
-    renderHero(0);
-    renderProgress(0);
-    renderMilestones(0);
-    renderAlert(null);
+    els.startBtn.classList.remove('running'); els.startBtn.disabled = false;
+    renderHero(0); renderProgress(0); renderMilestones(0); renderAlert(null);
+    logEvent('RESET');
     if (isRecording) stopRecording(true);
-    else updateBadges();
+    else { updateBadges(); renderTranscriptPreview(); }
+    bookmarks = [];
   }
 
   // ── Web Speech ────────────────────────────────────────────────────────
@@ -886,32 +929,23 @@
     clearTimeout(speechRetryTimer);
     try {
       recognition = new SR();
-      recognition.continuous    = true;
-      recognition.interimResults = false;
-      recognition.lang          = 'en-US';
-
+      recognition.continuous = true; recognition.interimResults = false; recognition.lang = 'en-US';
       recognition.onresult = e => {
-        lastResultTime = Date.now();
-        speechRetryDelay = 1000; // reset backoff on success
+        lastResultTime = Date.now(); speechRetryDelay = 1000;
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i].isFinal) {
             const t = recStart ? ((Date.now() - recStart) / 1000) : 0;
             transcriptLines.push(`[${fmtMMSS(t)}] ${e.results[i][0].transcript.trim()}`);
-            if (sessionObj) {
-              sessionObj.transcript = transcriptLines;
-              dbPut(sessionObj).catch(() => {});
-            }
+            if (sessionObj) { sessionObj.transcript = transcriptLines; dbPut(sessionObj).catch(() => {}); }
           }
         }
       };
-
-      recognition.onerror = () => scheduleRestart();
+      recognition.onerror = () => { logEvent('SPEECH_ERROR'); scheduleRestart(); };
       recognition.onend   = () => scheduleRestart();
       recognition.start();
       transcriptOk = true;
-    } catch (e) {
-      transcriptOk = false;
-    }
+      logEvent('SPEECH_START');
+    } catch { transcriptOk = false; }
   }
 
   function scheduleRestart() {
@@ -919,39 +953,48 @@
     clearTimeout(speechRetryTimer);
     speechRetryTimer = setTimeout(() => {
       speechRetryDelay = Math.min(speechRetryDelay * 2, 5000);
+      logEvent('SPEECH_RESTART', { delay: speechRetryDelay });
       startSpeech();
     }, speechRetryDelay);
   }
 
   function stopSpeech() {
-    clearTimeout(speechRetryTimer);
-    clearInterval(speechHealthTimer);
-    if (recognition) {
-      try { recognition.stop(); } catch (e) {}
-      recognition = null;
-    }
-    transcriptOk   = false;
-    lastResultTime = null;
+    clearTimeout(speechRetryTimer); clearInterval(speechHealthTimer);
+    if (recognition) { try { recognition.stop(); } catch {} recognition = null; }
+    transcriptOk = false; lastResultTime = null;
+  }
+
+  // ── Permission monitoring ─────────────────────────────────────────────
+  async function watchMicPermission() {
+    if (!navigator.permissions) return;
+    try {
+      const status = await navigator.permissions.query({ name: 'microphone' });
+      status.onchange = () => {
+        logEvent('MIC_PERMISSION_CHANGE', { state: status.state });
+        if (status.state === 'denied' && isRecording) {
+          setBadge(els.badgeMic, 'err', 'Mic: Revoked');
+        }
+      };
+    } catch {}
   }
 
   // ── Recording ─────────────────────────────────────────────────────────
   async function startRecording() {
     try {
       micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      logEvent('MIC_GRANTED');
     } catch {
+      logEvent('MIC_DENIED');
       alert('Microphone access denied.\n\nGrant mic permission and try again.\nThe timer still works without recording.');
       return false;
     }
 
-    recordedChunks = [];
-    transcriptLines = [];
+    recordedChunks = []; transcriptLines = []; bookmarks = [];
 
-    try {
-      mediaRecorder = new MediaRecorder(micStream);
-    } catch {
+    try { mediaRecorder = new MediaRecorder(micStream); }
+    catch {
       alert('MediaRecorder not supported. Use Chrome or Edge.');
-      micStream.getTracks().forEach(t => t.stop());
-      return false;
+      micStream.getTracks().forEach(t => t.stop()); return false;
     }
 
     mediaRecorder.ondataavailable = async e => {
@@ -962,24 +1005,20 @@
           const buf = await e.data.arrayBuffer();
           sessionObj.chunks.push(buf);
           await dbPut(sessionObj);
-          lastBackupTime = Date.now();
-          backupOk = true;
-        } catch {
-          backupOk = false;
-        }
+          lastBackupTime = Date.now(); backupOk = true;
+          logEvent('CHUNK_SAVED');
+        } catch { backupOk = false; logEvent('CHUNK_SAVE_FAILED'); }
       }
     };
 
     mediaRecorder.onstop = saveFiles;
-    mediaRecorder.start(CHUNK_INTERVAL); // fire ondataavailable every 30s
+    mediaRecorder.start(CHUNK_INTERVAL);
 
-    recStart    = Date.now();
-    isRecording = true;
-    backupOk    = false;
-
+    recStart = Date.now(); isRecording = true; backupOk = false;
     startSpeech();
+    startMeter(micStream);
+    watchMicPermission();
 
-    // Health check: no results in 30s → restart speech
     speechHealthTimer = setInterval(() => {
       if (isRecording && transcriptOk && lastResultTime && Date.now() - lastResultTime > 30000) {
         scheduleRestart();
@@ -991,19 +1030,15 @@
 
   function stopRecording(download = false) {
     isRecording = false;
-    stopSpeech();
+    stopSpeech(); stopMeter();
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop(); // triggers onstop → saveFiles
-    } else if (!download) {
-      // No mediaRecorder.stop() will fire — clean up manually
-      if (sessionId) dbDelete(sessionId);
+      mediaRecorder.stop();
+    } else if (!download && sessionId) {
+      dbDelete(sessionId);
     }
-    if (micStream) {
-      micStream.getTracks().forEach(t => t.stop());
-      micStream = null;
-    }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
     backupOk = false;
-    updateBadges();
+    updateBadges(); renderTranscriptPreview();
   }
 
   function saveFiles() {
@@ -1012,38 +1047,36 @@
       const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
       downloadBlob(blob, `interview-audio-${ts}.webm`);
     }
-    if (transcriptLines.length) {
+    if (transcriptLines.length || bookmarks.length) {
+      // Merge transcript + bookmarks, sorted by timestamp
+      const allLines = [
+        ...transcriptLines,
+        ...bookmarks.map(b => `[${fmtMMSS(b.sec)}] ★ BOOKMARK`),
+      ].sort((a, b) => {
+        const t = s => { const m = s.match(/^\[(\d+):(\d+)\]/); return m ? +m[1]*60 + +m[2] : 0; };
+        return t(a) - t(b);
+      });
       const txt = [
         'Interview Transcript (your voice · Web Speech API)',
         `Started: ${recStart ? new Date(recStart).toISOString() : 'unknown'}`,
         '',
-        ...transcriptLines,
+        ...allLines,
       ].join('\n') + '\n';
       const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
       downloadBlob(new Blob([txt], { type: 'text/plain' }), `interview-transcript-${ts}.txt`);
     }
+    logEvent('SESSION_SAVED');
     if (sessionId) { dbDelete(sessionId); sessionId = null; sessionObj = null; }
-  }
-
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a   = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   // ── Crash recovery ────────────────────────────────────────────────────
   async function checkIncompleteSessions() {
-    let all;
-    try { all = await dbGetAll(); } catch { return; }
+    let all; try { all = await dbGetAll(); } catch { return; }
     const incomplete = all.filter(s => s.status === 'recording' && s.chunks?.length > 0);
     if (!incomplete.length) return;
 
-    const s      = incomplete[0];
-    const when   = new Date(s.startTime).toLocaleString();
+    const s = incomplete[0];
+    const when = new Date(s.startTime).toLocaleString();
     const chunks = s.chunks.length;
     els.recoveryBody.textContent =
       `Session started ${when} · ${chunks} chunk${chunks !== 1 ? 's' : ''} (~${chunks * 30}s of audio) saved before crash.`;
@@ -1054,12 +1087,13 @@
       const combined = new Blob(blobs, { type: 'audio/webm' });
       const ts       = new Date(s.startTime).toISOString().replace(/[:.]/g, '-').slice(0, 19);
       downloadBlob(combined, `interview-recovered-${ts}.webm`);
+      logEvent('SESSION_RECOVERED', { sessionId: s.id });
       await dbDelete(s.id);
       els.recoveryModal.style.display = 'none';
       checkIncompleteSessions();
     };
-
     els.btnDiscard.onclick = async () => {
+      logEvent('SESSION_DISCARDED', { sessionId: s.id });
       await dbDelete(s.id);
       els.recoveryModal.style.display = 'none';
       checkIncompleteSessions();
@@ -1073,17 +1107,18 @@
   document.addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.key === 's' || e.key === 'S') startCall();
+    if      (e.key === 's' || e.key === 'S') startCall();
     else if (e.key === 'r' || e.key === 'R') resetAll();
+    else if (e.key === 'b' || e.key === 'B') dropBookmark();
+    else if (e.key === 'e' || e.key === 'E') exportLog();
   });
 
   // ── Init ──────────────────────────────────────────────────────────────
   (async () => {
-    try { db = await openDB(); } catch { /* IndexedDB unavailable — recording still works, no crash recovery */ }
-    renderHero(0);
-    renderProgress(0);
-    renderMilestones(0);
-    updateBadges();
+    try { db = await openDB(); } catch {}
+    logEvent('APP_OPEN');
+    renderHero(0); renderProgress(0); renderMilestones(0);
+    updateBadges(); renderTranscriptPreview();
     if (db) await checkIncompleteSessions();
   })();
 })();
