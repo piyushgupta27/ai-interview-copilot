@@ -28,46 +28,50 @@ No build step. No dependencies. Single file.
 ## Features
 
 - **Single "Start Call" button** — mic recording and round timer start together, no two-CTA fumble under pressure
-- **Round timer** with 5 milestones tuned to a 45-min interview, phase labels (Opening / Discussion / Late / Closing / Overtime), hard stop at 60 min
+- **Round presets** — HRBP 45, HM 60, SD 60, Peer 30; each with tuned milestones; select before the call, locks on start
 - **Live milestone alerts** — 30s warning, then "Now", then "Overdue" if you miss the window
-- **Audio recording** — local mic capture via MediaRecorder, saves `.webm` on stop
+- **Tab audio capture** — Chrome: captures your Meet/Zoom/Teams tab audio + mic so you get both sides; Firefox/Safari fall back to mic-only gracefully
+- **Audio recording** — local mic (+ tab) capture via MediaRecorder, saves `.webm` on stop
 - **Live transcript** — Web Speech API with aggressive auto-restart watchdog (exponential backoff)
-- **Status badges** — Mic / Transcript / Backup always visible so you know what's working
+- **Post-call panel** — transcript shown inline after session ends; "Polish with Claude" copies a debrief prompt to clipboard and opens claude.ai — no API key needed
+- **Status badges** — Mic / Transcript / Backup / Interviewer always visible so you know what's working
 - **Crash-safe backup** — audio chunks saved to IndexedDB every 30s; recovery dialog on next open if browser crashed
 - **Pause / resume** — timer pauses, recording keeps going
-- **Keyboard shortcuts** — `S` to start/pause, `R` to reset
+- **Keyboard shortcuts** — `S` to start/pause, `R` to reset, `B` to bookmark, `E` to export log
 
 ---
 
 ## Browser support
 
-| Browser | Timer | Recording | Live transcript |
-|---|---|---|---|
-| Chrome / Edge | ✅ | ✅ | ✅ |
-| Firefox | ✅ | ✅ | ❌ (no Web Speech API) |
-| Safari | ✅ | ✅ | ⚠️ limited |
+| Browser | Timer | Recording | Tab audio | Live transcript |
+|---|---|---|---|---|
+| Chrome / Edge | ✅ | ✅ | ✅ | ✅ |
+| Firefox | ✅ | ✅ | ✅ | ❌ (no Web Speech API) |
+| Safari | ✅ | ✅ | ❌ | ⚠️ limited |
 
-**Recommended: Chrome.** Live transcript requires the Web Speech API.
+**Recommended: Chrome.** Tab audio capture and live transcript both require Chrome/Edge.
 
 ---
 
 ## Known issues
 
-- **Interviewer's voice not captured** — MediaRecorder captures your mic only. The other side of the call (on Meet, Zoom, etc.) is on your speaker output, not your mic. Tab audio capture is on the roadmap (v0.3).
-- **Live transcript can drop** — Web Speech API sessions can silently end when Chrome re-prompts for mic permission (e.g. on screen-share toggle). The watchdog restarts it, but there may be gaps. Run audio through [whisper.cpp](https://github.com/ggerganov/whisper.cpp) post-call for a reliable transcript.
-- **Milestones hardcoded to 45 min** — configurable round presets are roadmap (v0.4).
+- **Live transcript can drop** — Web Speech API sessions can silently end when Chrome re-prompts for mic permission (e.g. on screen-share toggle). The watchdog restarts it, but there may be gaps. Use "Polish with Claude" post-call with the downloaded `.webm` for a clean debrief.
+- **Tab audio requires Chrome** — `getDisplayMedia` audio capture is not supported on Safari. Firefox supports it but the audio track may not always be available depending on OS audio routing.
 
 ---
 
-## Post-call transcription (recommended)
+## Post-call debrief
 
-The built-in Web Speech transcript is best-effort. For a full transcript after the call, run the downloaded `.webm` through whisper.cpp:
+The built-in Web Speech transcript is best-effort. After the session, the **Post-call** panel shows your transcript inline and offers two options:
+
+1. **Copy transcript** — paste into any tool
+2. **Polish with Claude** — copies a structured debrief prompt to clipboard and opens [claude.ai](https://claude.ai/new). Paste the prompt. Claude will identify strong moments, flag missed opportunities, and suggest follow-up questions. No API key, no account needed beyond Claude.ai.
+
+For a full transcript from the audio, run the downloaded `.webm` through whisper.cpp:
 
 ```bash
-# Install whisper.cpp (macOS)
+# macOS
 brew install whisper-cpp
-
-# Transcribe
 whisper-cli --model small.en --language en --output-txt interview-audio.webm
 ```
 
@@ -78,9 +82,9 @@ whisper-cli --model small.en --language en --output-txt interview-audio.webm
 | Phase | Theme | Status |
 |---|---|---|
 | **v0.1** | Foundation — single file, crash recovery, live badges | ✅ shipped |
-| **v0.2** | Reliability — mic meter, permission monitoring, bookmarks | 🔜 next |
-| **v0.3** | Coverage — tab audio capture, interviewer voice | planned |
-| **v0.4** | Post-call — in-browser Whisper, one-click debrief, round presets | planned |
+| **v0.2** | Reliability — mic meter, permission monitoring, bookmarks | ✅ shipped |
+| **v0.3** | Coverage — tab audio capture, Interviewer badge | ✅ shipped |
+| **v0.4** | Post-call — debrief panel, Polish with Claude, round presets | ✅ shipped |
 
 ---
 
