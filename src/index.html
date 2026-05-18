@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interview Copilot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  :root {
+    --navy:       #0f172a;
+    --slate-900:  #0b1220;
+    --slate-800:  #1e293b;
+    --slate-700:  #334155;
+    --slate-600:  #475569;
+    --slate-500:  #64748b;
+    --slate-400:  #94a3b8;
+    --slate-300:  #cbd5e1;
+    --slate-200:  #e2e8f0;
+    --slate-100:  #f1f5f9;
+    --teal:       #0d9488;
+    --teal-bright:#14b8a6;
+    --amber:      #f59e0b;
+    --amber-glow: rgba(245,158,11,0.2);
+    --orange:     #ea580c;
+    --orange-glow:rgba(234,88,12,0.2);
+    --rose:       #e11d48;
+    --rose-glow:  rgba(225,29,72,0.22);
+    --green:      #10b981;
+    --violet:     #a78bfa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(160deg, #050913 0%, var(--slate-900) 60%, #0a0f1f 100%);
+    color: var(--slate-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    user-select: none;
+    min-height: 100vh;
+  }
+
+  /* ── App shell ──────────────────────────────────── */
+  .app {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 18px 20px 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .round-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Status badges ──────────────────────────────── */
+  .status-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 3px 9px 3px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--slate-500);
+    transition: all 0.3s;
+  }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--slate-700);
+    flex: 0 0 auto;
+    transition: background 0.3s;
+  }
+  .badge-ok   { color: var(--green);  border-color: rgba(16,185,129,0.3); }
+  .badge-ok   .badge-dot { background: var(--green); }
+  .badge-warn { color: var(--amber);  border-color: rgba(245,158,11,0.3); }
+  .badge-warn .badge-dot { background: var(--amber); }
+  .badge-err  { color: var(--rose);   border-color: rgba(225,29,72,0.3); }
+  .badge-err  .badge-dot { background: var(--rose); animation: blink 1.4s ease-in-out infinite; }
+  .badge-off  { opacity: 0.35; }
+
+  /* ── Alert banner ───────────────────────────────── */
+  .alert-banner {
+    display: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .alert-banner.active { display: block; }
+  .alert-eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    opacity: 0.85;
+  }
+  .alert-text {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 5px;
+  }
+  .alert-detail {
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .alert-banner.upcoming {
+    background: linear-gradient(135deg, var(--amber-glow), rgba(245,158,11,0.08));
+    border: 1px solid var(--amber);
+    color: var(--amber);
+  }
+  .alert-banner.action {
+    background: linear-gradient(135deg, var(--orange-glow), rgba(234,88,12,0.1));
+    border: 1px solid var(--orange);
+    color: #fdba74;
+    animation: glow-orange 1.6s ease-in-out infinite;
+  }
+  .alert-banner.action .alert-text { color: #fed7aa; }
+  .alert-banner.overdue {
+    background: linear-gradient(135deg, var(--rose-glow), rgba(225,29,72,0.1));
+    border: 1px solid var(--rose);
+    color: #fda4af;
+    animation: glow-rose 1.2s ease-in-out infinite;
+  }
+  .alert-banner.overdue .alert-text { color: #fecdd3; }
+
+  @keyframes glow-orange {
+    0%,100% { box-shadow: 0 0 0 0 rgba(234,88,12,0); }
+    50%      { box-shadow: 0 0 28px 4px rgba(234,88,12,0.4); }
+  }
+  @keyframes glow-rose {
+    0%,100% { box-shadow: 0 0 0 0 rgba(225,29,72,0); }
+    50%      { box-shadow: 0 0 32px 6px rgba(225,29,72,0.5); }
+  }
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.5; }
+  }
+
+  /* ── Hero timer ─────────────────────────────────── */
+  .hero {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .phase {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--slate-500);
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+  .phase.opening    { color: var(--green); }
+  .phase.discussion { color: var(--teal-bright); }
+  .phase.late       { color: var(--amber); }
+  .phase.closing    { color: var(--orange); }
+  .phase.over       { color: var(--rose); }
+  .phase.stopped    { color: var(--slate-700); }
+
+  .elapsed {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 88px;
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    color: var(--slate-100);
+    transition: color 0.4s;
+  }
+  .elapsed.warm    { color: var(--amber); }
+  .elapsed.hot     { color: var(--orange); }
+  .elapsed.over    { color: var(--rose); animation: pulse 1.2s ease-in-out infinite; }
+  .elapsed.stopped { color: var(--slate-600); animation: none; }
+
+  .pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate-400);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+  }
+  .pct.warm    { color: var(--amber); }
+  .pct.hot     { color: var(--orange); }
+  .pct.over    { color: var(--rose); }
+  .pct.stopped { color: var(--slate-600); }
+
+  .zone-label {
+    font-size: 12px;
+    color: var(--slate-500);
+    font-weight: 500;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .total-cap {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--slate-700);
+    margin-top: 4px;
+  }
+
+  /* ── Progress bar ───────────────────────────────── */
+  .progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--teal-bright) 30%, var(--amber) 67%, var(--orange) 89%, var(--rose) 100%);
+    width: 0;
+    transition: width 0.5s;
+  }
+
+  /* ── Milestones ─────────────────────────────────── */
+  .milestones-section {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .section-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--slate-500);
+    margin-bottom: 8px;
+  }
+  .milestone-timeline { display: flex; flex-direction: column; gap: 2px; }
+  .ms-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 11.5px;
+    line-height: 1.35;
+    transition: all 0.4s;
+    border-radius: 6px;
+  }
+  .ms-icon { width: 14px; flex: 0 0 auto; text-align: center; font-weight: 800; font-size: 11px; }
+  .ms-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    width: 42px;
+    flex: 0 0 auto;
+  }
+  .ms-text  { flex: 1; }
+  .ms-eta   { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; flex: 0 0 auto; color: var(--slate-500); }
+
+  .ms-row.done { opacity: 0.45; }
+  .ms-row.done .ms-icon { color: var(--green); }
+  .ms-row.done .ms-time { color: var(--slate-500); text-decoration: line-through; }
+  .ms-row.done .ms-text { color: var(--slate-500); }
+
+  .ms-row.current {
+    background: linear-gradient(90deg, rgba(245,158,11,0.12), rgba(245,158,11,0.02));
+    border-left: 3px solid var(--amber);
+    padding: 8px 10px 8px 11px;
+    margin: 2px 0 2px -2px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .ms-row.current .ms-icon { color: var(--amber); font-size: 13px; }
+  .ms-row.current .ms-time { color: var(--amber); font-size: 11.5px; }
+  .ms-row.current .ms-text { color: var(--slate-100); }
+  .ms-row.current .ms-eta  { color: var(--amber); }
+
+  .ms-row.future     .ms-icon { color: var(--slate-700); }
+  .ms-row.future     .ms-time { color: var(--slate-600); }
+  .ms-row.future     .ms-text { color: var(--slate-500); }
+  .ms-row.future-far { opacity: 0.45; }
+  .ms-row.future-far .ms-icon { color: var(--slate-700); }
+  .ms-row.future-far .ms-time { color: var(--slate-700); }
+  .ms-row.future-far .ms-text { color: var(--slate-600); }
+
+  /* ── Reminder strip ─────────────────────────────── */
+  .reminder-strip {
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--slate-500);
+    letter-spacing: 0.4px;
+    padding: 4px 0;
+  }
+  .reminder-strip strong { color: var(--slate-300); font-weight: 700; }
+
+  /* ── Controls ───────────────────────────────────── */
+  .controls { display: flex; gap: 8px; }
+  .ctrl {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  #start-btn {
+    flex: 2;
+    background: var(--amber);
+    color: var(--navy);
+    box-shadow: 0 2px 12px var(--amber-glow);
+  }
+  #start-btn:hover:not(:disabled) { background: #fbbf24; transform: translateY(-1px); }
+  #start-btn.running {
+    background: rgba(255,255,255,0.06);
+    color: var(--slate-300);
+    box-shadow: none;
+  }
+  #start-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+  #reset-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    color: var(--slate-400);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  #reset-btn:hover { background: rgba(255,255,255,0.08); color: var(--slate-200); }
+
+  /* ── Footer ─────────────────────────────────────── */
+  .footer-hint {
+    font-size: 10px;
+    color: var(--slate-700);
+    text-align: center;
+    line-height: 1.5;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  kbd {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--slate-400);
+    font-weight: 600;
+  }
+
+  /* ── Recovery modal ─────────────────────────────── */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: var(--slate-800);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .modal-icon   { font-size: 32px; margin-bottom: 12px; }
+  .modal-title  { font-size: 16px; font-weight: 700; color: var(--slate-100); margin-bottom: 8px; }
+  .modal-body   { font-size: 13px; color: var(--slate-400); line-height: 1.6; margin-bottom: 22px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .modal-actions button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  #btn-recover { background: var(--amber); color: var(--navy); }
+  #btn-recover:hover { background: #fbbf24; }
+  #btn-discard {
+    background: rgba(255,255,255,0.06);
+    color: var(--slate-300);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  #btn-discard:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
+
+  /* ── Responsive ─────────────────────────────────── */
+  @media (max-width: 460px) {
+    body { padding: 8px; }
+    .app  { padding: 14px 14px 12px; gap: 10px; }
+    .elapsed { font-size: 64px; letter-spacing: -2px; }
+    .pct { font-size: 12.5px; }
+    .zone-label { font-size: 11.5px; }
+    .alert-text { font-size: 14.5px; }
+    .alert-detail { font-size: 11.5px; }
+    .ms-row .ms-time { width: 38px; }
+  }
+  @media (max-width: 340px) {
+    .elapsed { font-size: 52px; }
+    .pct { font-size: 11.5px; }
+    .ms-row { font-size: 10.5px; }
+    .ms-row.current { font-size: 11.5px; }
+    .ms-row .ms-time { width: 34px; font-size: 9.5px; }
+    .reminder-strip { font-size: 9.5px; }
+    .footer-hint { font-size: 9.5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Crash recovery modal -->
+<div id="recovery-modal" class="modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Incomplete recording found</div>
+    <div class="modal-body" id="recovery-body"></div>
+    <div class="modal-actions">
+      <button id="btn-recover">Download &amp; Clear</button>
+      <button id="btn-discard">Discard</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app">
+
+  <header>
+    <div class="round-label" id="round-label">Interview Session · 45 min</div>
+    <div class="status-badges">
+      <div class="badge badge-off" id="badge-mic">
+        <span class="badge-dot"></span><span class="badge-label">Mic</span>
+      </div>
+      <div class="badge badge-off" id="badge-transcript">
+        <span class="badge-dot"></span><span class="badge-label">Transcript</span>
+      </div>
+      <div class="badge badge-off" id="badge-backup">
+        <span class="badge-dot"></span><span class="badge-label">Backup</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="alert-banner" id="alert-banner">
+    <div class="alert-eyebrow" id="alert-eyebrow"></div>
+    <div class="alert-text" id="alert-text"></div>
+    <div class="alert-detail" id="alert-detail"></div>
+  </div>
+
+  <div class="hero">
+    <div class="phase" id="phase">Ready</div>
+    <div class="elapsed" id="elapsed">0 / 45</div>
+    <div class="pct" id="pct">0%</div>
+    <div class="zone-label" id="zone-label">Press Start Call when the interviewer joins</div>
+    <div class="total-cap">target 45 min · hard stop 60 min</div>
+  </div>
+
+  <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+
+  <div class="milestones-section">
+    <div class="section-label">Checkpoints</div>
+    <div class="milestone-timeline" id="milestone-timeline"></div>
+  </div>
+
+  <div class="reminder-strip">
+    <strong>Point first</strong> · <strong>"I"</strong> for decisions · <strong>≤2 min</strong> · Numbers beat claims
+  </div>
+
+  <div class="controls">
+    <button class="ctrl" id="start-btn">Start Call</button>
+    <button class="ctrl" id="reset-btn">Reset</button>
+  </div>
+
+  <div class="footer-hint">
+    <kbd>S</kbd> start/pause &nbsp;·&nbsp; <kbd>R</kbd> reset
+  </div>
+
+</div>
+
+<script>
+(() => {
+  // ── Config ───────────────────────────────────────────────────────────
+  const ROUND_DURATION   = 45 * 60;
+  const HARD_STOP        = 60 * 60;
+  const CHUNK_INTERVAL   = 30_000; // IndexedDB save every 30s
+
+  const milestones = [
+    { sec:  2*60, name: 'Self-intro done',              alert: null },
+    { sec:  5*60, name: 'Context & rapport set',        alert: null },
+    { sec: 30*60, name: 'Queue your questions',
+      alert: '"I\'d love the last 10 min for my questions — does that work?"' },
+    { sec: 38*60, name: 'Closing window — pivot now',
+      alert: '"What does success look like in the first 90 days?"' },
+    { sec: 43*60, name: 'Ask: What are next steps?',
+      alert: '"Thanks — what are the next steps from here?"' },
+  ];
+
+  const phases = [
+    { from: 0,         to: 3*60,      key: 'opening',    label: 'Opening' },
+    { from: 3*60,      to: 30*60,     key: 'discussion', label: 'Discussion' },
+    { from: 30*60,     to: 40*60,     key: 'late',       label: 'Late — queue Qs' },
+    { from: 40*60,     to: 45*60,     key: 'closing',    label: 'Closing' },
+    { from: 45*60,     to: HARD_STOP, key: 'over',       label: 'Overtime — wrap' },
+    { from: HARD_STOP, to: Infinity,  key: 'stopped',    label: 'Hard-stopped' },
+  ];
+
+  // ── IndexedDB ────────────────────────────────────────────────────────
+  const DB_NAME = 'interview-copilot';
+  const DB_VER  = 1;
+  const STORE   = 'sessions';
+  let db = null;
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains(STORE)) {
+          d.createObjectStore(STORE, { keyPath: 'id' });
+        }
+      };
+      req.onsuccess  = e => resolve(e.target.result);
+      req.onerror    = e => reject(e.target.error);
+    });
+  }
+
+  function dbPut(obj) {
+    if (!db) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(obj).onsuccess = () => res();
+      tx.onerror = e => rej(e.target.error);
+    });
+  }
+
+  function dbGetAll() {
+    if (!db) return Promise.resolve([]);
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => res(req.result || []);
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+
+  function dbDelete(id) {
+    if (!db) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).delete(id).onsuccess = () => res();
+      tx.onerror = e => rej(e.target.error);
+    });
+  }
+
+  // ── State ────────────────────────────────────────────────────────────
+  let running      = false;
+  let hardStopped  = false;
+  let roundStart   = null;  // epoch ms, adjusted on each resume
+  let pausedAt     = null;  // epoch ms when last paused
+  let tickHandle   = null;
+
+  let sessionId    = null;
+  let sessionObj   = null;
+
+  // Recording
+  let mediaRecorder  = null;
+  let recordedChunks = [];
+  let micStream      = null;
+  let isRecording    = false;
+  let recStart       = null;
+  let lastBackupTime = null;
+  let backupOk       = false;
+
+  // Speech
+  let recognition       = null;
+  let transcriptLines   = [];
+  let transcriptOk      = false;
+  let lastResultTime    = null;
+  let speechRetryDelay  = 1000;
+  let speechRetryTimer  = null;
+  let speechHealthTimer = null;
+
+  // ── DOM ──────────────────────────────────────────────────────────────
+  const $  = id => document.getElementById(id);
+  const els = {
+    phase:             $('phase'),
+    elapsed:           $('elapsed'),
+    pct:               $('pct'),
+    zoneLabel:         $('zone-label'),
+    progressBar:       $('progress-bar'),
+    milestoneTimeline: $('milestone-timeline'),
+    alertBanner:       $('alert-banner'),
+    alertEyebrow:      $('alert-eyebrow'),
+    alertText:         $('alert-text'),
+    alertDetail:       $('alert-detail'),
+    startBtn:          $('start-btn'),
+    resetBtn:          $('reset-btn'),
+    badgeMic:          $('badge-mic'),
+    badgeTranscript:   $('badge-transcript'),
+    badgeBackup:       $('badge-backup'),
+    recoveryModal:     $('recovery-modal'),
+    recoveryBody:      $('recovery-body'),
+    btnRecover:        $('btn-recover'),
+    btnDiscard:        $('btn-discard'),
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  const pad      = n => String(n).padStart(2, '0');
+  const fmtMMSS  = s => `${pad(Math.floor(Math.abs(s)/60))}:${pad(Math.floor(Math.abs(s)%60))}`;
+
+  function setBadge(el, state, label) {
+    el.className = `badge badge-${state}`;
+    el.querySelector('.badge-label').textContent = label;
+  }
+
+  function updateBadges() {
+    // Mic
+    if (!isRecording) {
+      setBadge(els.badgeMic, 'off', 'Mic');
+    } else {
+      setBadge(els.badgeMic, 'ok', 'Mic: Live');
+    }
+
+    // Transcript
+    if (!isRecording) {
+      setBadge(els.badgeTranscript, 'off', 'Transcript');
+    } else if (!transcriptOk) {
+      setBadge(els.badgeTranscript, 'err', 'Transcript: Off');
+    } else if (lastResultTime && Date.now() - lastResultTime > 30000) {
+      setBadge(els.badgeTranscript, 'warn', 'Transcript: Stale');
+    } else if (!lastResultTime) {
+      setBadge(els.badgeTranscript, 'warn', 'Transcript: Waiting');
+    } else {
+      setBadge(els.badgeTranscript, 'ok', 'Transcript: On');
+    }
+
+    // Backup
+    if (!isRecording) {
+      setBadge(els.badgeBackup, 'off', 'Backup');
+    } else if (!backupOk) {
+      setBadge(els.badgeBackup, 'warn', 'Backup: Pending');
+    } else {
+      const ago = lastBackupTime ? Math.floor((Date.now() - lastBackupTime) / 1000) : null;
+      const label = ago !== null ? `Backup: ${ago}s ago` : 'Backup: OK';
+      setBadge(els.badgeBackup, ago !== null && ago > 35 ? 'warn' : 'ok', label);
+    }
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────
+  function renderHero(elapsed) {
+    const minsElapsed = Math.floor(elapsed / 60);
+    const totalMins   = Math.floor(ROUND_DURATION / 60);
+    const pct         = Math.floor((elapsed / ROUND_DURATION) * 100);
+    els.elapsed.textContent = `${minsElapsed} / ${totalMins}`;
+    els.pct.textContent     = `${pct}%`;
+
+    const mins = elapsed / 60;
+    let zone = '';
+    if (hardStopped)    zone = 'stopped';
+    else if (mins >= 45) zone = 'over';
+    else if (mins >= 40) zone = 'hot';
+    else if (mins >= 30) zone = 'warm';
+    els.elapsed.className = `elapsed ${zone}`;
+    els.pct.className     = `pct ${zone}`;
+
+    const phase = phases.find(p => elapsed >= p.from && elapsed < p.to) || phases[phases.length - 1];
+    els.phase.className   = `phase ${phase.key}`;
+    els.phase.textContent = phase.label;
+
+    if (hardStopped) {
+      els.zoneLabel.textContent = 'Hard-stopped at 60:00 · click Reset to start over';
+    } else if (!roundStart) {
+      els.zoneLabel.textContent = 'Press Start Call when the interviewer joins';
+    } else if (mins < 3) {
+      els.zoneLabel.textContent = 'Warmth · tell me about yourself · first impression';
+    } else if (mins < 30) {
+      els.zoneLabel.textContent = 'Behavioral discussion · ≤2 min answers · numbers';
+    } else if (mins < 40) {
+      els.zoneLabel.textContent = 'Steer toward closing · queue your questions';
+    } else if (mins < 45) {
+      els.zoneLabel.textContent = 'Your questions · ask about next steps';
+    } else {
+      els.zoneLabel.textContent = 'Overtime · wrap gracefully';
+    }
+  }
+
+  function renderProgress(elapsed) {
+    els.progressBar.style.width = `${Math.min(100, (elapsed / ROUND_DURATION) * 100)}%`;
+  }
+
+  function renderMilestones(elapsed) {
+    const nextIdx = milestones.findIndex(m => m.sec > elapsed);
+    els.milestoneTimeline.innerHTML = milestones.map((m, idx) => {
+      let cls, icon, etaHtml = '';
+      if (m.sec <= elapsed) {
+        cls = 'done'; icon = '✓';
+      } else if (idx === nextIdx) {
+        cls = 'current'; icon = '◉';
+        etaHtml = `<span class="ms-eta">in ${fmtMMSS(m.sec - elapsed)}</span>`;
+      } else if (idx === nextIdx + 1) {
+        cls = 'future'; icon = '○';
+      } else {
+        cls = 'future-far'; icon = '○';
+      }
+      return `<div class="ms-row ${cls}">` +
+        `<div class="ms-icon">${icon}</div>` +
+        `<div class="ms-time">${fmtMMSS(m.sec)}</div>` +
+        `<div class="ms-text">${m.name}</div>` +
+        etaHtml + `</div>`;
+    }).join('');
+  }
+
+  function computeAlert(elapsed) {
+    for (const m of milestones) {
+      if (!m.alert) continue;
+      const gap = m.sec - elapsed;
+      if (gap > 0 && gap <= 30) {
+        return { level: 'upcoming', eyebrow: `In ${Math.ceil(gap)}s`, text: m.name, detail: m.alert };
+      }
+    }
+    for (const m of milestones) {
+      if (!m.alert) continue;
+      if (elapsed >= m.sec && elapsed < m.sec + 60) {
+        return { level: 'action', eyebrow: 'Now', text: m.name, detail: m.alert };
+      }
+    }
+    for (const m of milestones) {
+      if (!m.alert) continue;
+      if (elapsed >= m.sec + 60 && elapsed < m.sec + 120) {
+        return { level: 'overdue', eyebrow: 'Overdue', text: m.name, detail: m.alert };
+      }
+    }
+    return null;
+  }
+
+  function renderAlert(alert) {
+    if (!alert) { els.alertBanner.className = 'alert-banner'; return; }
+    els.alertBanner.className    = `alert-banner active ${alert.level}`;
+    els.alertEyebrow.textContent = alert.eyebrow;
+    els.alertText.textContent    = alert.text;
+    els.alertDetail.textContent  = alert.detail || '';
+  }
+
+  // ── Tick ─────────────────────────────────────────────────────────────
+  function tick() {
+    if (!running || !roundStart) return;
+    const elapsed = (Date.now() - roundStart) / 1000;
+
+    if (elapsed >= HARD_STOP && !hardStopped) {
+      hardStopped = true;
+      running = false;
+      clearInterval(tickHandle);
+      els.startBtn.textContent = 'Hard-stopped';
+      els.startBtn.classList.remove('running');
+      els.startBtn.disabled = true;
+      renderHero(HARD_STOP);
+      renderProgress(HARD_STOP);
+      renderMilestones(HARD_STOP);
+      renderAlert(null);
+      updateBadges();
+      return;
+    }
+
+    renderHero(elapsed);
+    renderProgress(elapsed);
+    renderMilestones(elapsed);
+    renderAlert(computeAlert(elapsed));
+    updateBadges();
+  }
+
+  // ── Round control ─────────────────────────────────────────────────────
+  async function startCall() {
+    if (hardStopped) return;
+
+    if (running) {
+      // Pause — timer stops, recording continues
+      running  = false;
+      pausedAt = Date.now();
+      clearInterval(tickHandle);
+      els.startBtn.textContent = 'Resume';
+      els.startBtn.classList.remove('running');
+      return;
+    }
+
+    if (roundStart && pausedAt) {
+      // Resume — shift roundStart forward by pause duration
+      const pauseDuration = Date.now() - pausedAt;
+      roundStart += pauseDuration;
+      pausedAt = null;
+      running  = true;
+      els.startBtn.textContent = 'Pause';
+      els.startBtn.classList.add('running');
+      tickHandle = setInterval(tick, 250);
+      tick();
+      return;
+    }
+
+    // First start — request mic, then kick everything off together
+    els.startBtn.textContent = 'Starting…';
+    els.startBtn.disabled    = true;
+    const ok = await startRecording();
+    els.startBtn.disabled = false;
+    if (!ok) {
+      els.startBtn.textContent = 'Start Call';
+      return;
+    }
+
+    roundStart = Date.now();
+    sessionId  = `session-${roundStart}`;
+    sessionObj = { id: sessionId, startTime: roundStart, status: 'recording', chunks: [], transcript: [] };
+    await dbPut(sessionObj);
+
+    running  = true;
+    els.startBtn.textContent = 'Pause';
+    els.startBtn.classList.add('running');
+    tickHandle = setInterval(tick, 250);
+    tick();
+  }
+
+  function resetAll() {
+    if (!confirm('Reset? Recording will stop and files will download.')) return;
+    running     = false;
+    hardStopped = false;
+    roundStart  = null;
+    pausedAt    = null;
+    clearInterval(tickHandle);
+    els.startBtn.textContent = 'Start Call';
+    els.startBtn.classList.remove('running');
+    els.startBtn.disabled    = false;
+    renderHero(0);
+    renderProgress(0);
+    renderMilestones(0);
+    renderAlert(null);
+    if (isRecording) stopRecording(true);
+    else updateBadges();
+  }
+
+  // ── Web Speech ────────────────────────────────────────────────────────
+  function startSpeech() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { transcriptOk = false; return; }
+    clearTimeout(speechRetryTimer);
+    try {
+      recognition = new SR();
+      recognition.continuous    = true;
+      recognition.interimResults = false;
+      recognition.lang          = 'en-US';
+
+      recognition.onresult = e => {
+        lastResultTime = Date.now();
+        speechRetryDelay = 1000; // reset backoff on success
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            const t = recStart ? ((Date.now() - recStart) / 1000) : 0;
+            transcriptLines.push(`[${fmtMMSS(t)}] ${e.results[i][0].transcript.trim()}`);
+            if (sessionObj) {
+              sessionObj.transcript = transcriptLines;
+              dbPut(sessionObj).catch(() => {});
+            }
+          }
+        }
+      };
+
+      recognition.onerror = () => scheduleRestart();
+      recognition.onend   = () => scheduleRestart();
+      recognition.start();
+      transcriptOk = true;
+    } catch (e) {
+      transcriptOk = false;
+    }
+  }
+
+  function scheduleRestart() {
+    if (!isRecording) return;
+    clearTimeout(speechRetryTimer);
+    speechRetryTimer = setTimeout(() => {
+      speechRetryDelay = Math.min(speechRetryDelay * 2, 5000);
+      startSpeech();
+    }, speechRetryDelay);
+  }
+
+  function stopSpeech() {
+    clearTimeout(speechRetryTimer);
+    clearInterval(speechHealthTimer);
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+      recognition = null;
+    }
+    transcriptOk   = false;
+    lastResultTime = null;
+  }
+
+  // ── Recording ─────────────────────────────────────────────────────────
+  async function startRecording() {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      alert('Microphone access denied.\n\nGrant mic permission and try again.\nThe timer still works without recording.');
+      return false;
+    }
+
+    recordedChunks = [];
+    transcriptLines = [];
+
+    try {
+      mediaRecorder = new MediaRecorder(micStream);
+    } catch {
+      alert('MediaRecorder not supported. Use Chrome or Edge.');
+      micStream.getTracks().forEach(t => t.stop());
+      return false;
+    }
+
+    mediaRecorder.ondataavailable = async e => {
+      if (!e.data || e.data.size === 0) return;
+      recordedChunks.push(e.data);
+      if (sessionObj && db) {
+        try {
+          const buf = await e.data.arrayBuffer();
+          sessionObj.chunks.push(buf);
+          await dbPut(sessionObj);
+          lastBackupTime = Date.now();
+          backupOk = true;
+        } catch {
+          backupOk = false;
+        }
+      }
+    };
+
+    mediaRecorder.onstop = saveFiles;
+    mediaRecorder.start(CHUNK_INTERVAL); // fire ondataavailable every 30s
+
+    recStart    = Date.now();
+    isRecording = true;
+    backupOk    = false;
+
+    startSpeech();
+
+    // Health check: no results in 30s → restart speech
+    speechHealthTimer = setInterval(() => {
+      if (isRecording && transcriptOk && lastResultTime && Date.now() - lastResultTime > 30000) {
+        scheduleRestart();
+      }
+    }, 15000);
+
+    return true;
+  }
+
+  function stopRecording(download = false) {
+    isRecording = false;
+    stopSpeech();
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop(); // triggers onstop → saveFiles
+    } else if (!download) {
+      // No mediaRecorder.stop() will fire — clean up manually
+      if (sessionId) dbDelete(sessionId);
+    }
+    if (micStream) {
+      micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+    }
+    backupOk = false;
+    updateBadges();
+  }
+
+  function saveFiles() {
+    if (recordedChunks.length) {
+      const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+      const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      downloadBlob(blob, `interview-audio-${ts}.webm`);
+    }
+    if (transcriptLines.length) {
+      const txt = [
+        'Interview Transcript (your voice · Web Speech API)',
+        `Started: ${recStart ? new Date(recStart).toISOString() : 'unknown'}`,
+        '',
+        ...transcriptLines,
+      ].join('\n') + '\n';
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      downloadBlob(new Blob([txt], { type: 'text/plain' }), `interview-transcript-${ts}.txt`);
+    }
+    if (sessionId) { dbDelete(sessionId); sessionId = null; sessionObj = null; }
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ── Crash recovery ────────────────────────────────────────────────────
+  async function checkIncompleteSessions() {
+    let all;
+    try { all = await dbGetAll(); } catch { return; }
+    const incomplete = all.filter(s => s.status === 'recording' && s.chunks?.length > 0);
+    if (!incomplete.length) return;
+
+    const s      = incomplete[0];
+    const when   = new Date(s.startTime).toLocaleString();
+    const chunks = s.chunks.length;
+    els.recoveryBody.textContent =
+      `Session started ${when} · ${chunks} chunk${chunks !== 1 ? 's' : ''} (~${chunks * 30}s of audio) saved before crash.`;
+    els.recoveryModal.style.display = 'flex';
+
+    els.btnRecover.onclick = async () => {
+      const blobs    = s.chunks.map(buf => new Blob([buf], { type: 'audio/webm' }));
+      const combined = new Blob(blobs, { type: 'audio/webm' });
+      const ts       = new Date(s.startTime).toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      downloadBlob(combined, `interview-recovered-${ts}.webm`);
+      await dbDelete(s.id);
+      els.recoveryModal.style.display = 'none';
+      checkIncompleteSessions();
+    };
+
+    els.btnDiscard.onclick = async () => {
+      await dbDelete(s.id);
+      els.recoveryModal.style.display = 'none';
+      checkIncompleteSessions();
+    };
+  }
+
+  // ── Wire up ───────────────────────────────────────────────────────────
+  els.startBtn.addEventListener('click', startCall);
+  els.resetBtn.addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 's' || e.key === 'S') startCall();
+    else if (e.key === 'r' || e.key === 'R') resetAll();
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────
+  (async () => {
+    try { db = await openDB(); } catch { /* IndexedDB unavailable — recording still works, no crash recovery */ }
+    renderHero(0);
+    renderProgress(0);
+    renderMilestones(0);
+    updateBadges();
+    if (db) await checkIncompleteSessions();
+  })();
+})();
+</script>
+
+</body>
+</html>
