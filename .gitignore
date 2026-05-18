@@ -1,1 +1,35 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor & IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local dev / planning docs (not for public repo)
+00-master-plan.md
+NOTES.md
+notes.md
+scratch/
+
+# Environment & secrets (never commit these)
+.env
+.env.*
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+config.local.*
+
+# Build output (if we add a build step later)
+dist/
+out/
+
+# Logs
+*.log
+npm-debug.log*

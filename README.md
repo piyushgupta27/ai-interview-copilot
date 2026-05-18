@@ -4,8 +4,6 @@ A browser-based utility that runs alongside you during job interviews — tracks
 
 **[→ Open the live demo](https://piyushgupta27.github.io/ai-interview-copilot/)**
 
-![Interview Copilot screenshot](docs/screenshot.png)
-
 ---
 
 ## Why this exists
