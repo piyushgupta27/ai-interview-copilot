@@ -33,3 +33,4 @@ out/
 # Logs
 *.log
 npm-debug.log*
+.gstack/
