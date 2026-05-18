@@ -372,6 +372,54 @@
   #btn-tab-skip { background: rgba(255,255,255,0.06); color: var(--slate-300); border: 1px solid rgba(255,255,255,0.1); }
   #btn-tab-skip:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
 
+  /* ── Round preset selector ─────────────────────── */
+  .preset-row {
+    display: flex; gap: 5px; flex-wrap: wrap; padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05); margin-top: 2px;
+  }
+  .preset-row.hidden { display: none; }
+  .preset-btn {
+    font-family: inherit; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04); color: var(--slate-400);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .preset-btn:hover { background: rgba(255,255,255,0.08); color: var(--slate-200); }
+  .preset-btn.active {
+    background: rgba(245,158,11,0.15); border-color: var(--amber); color: var(--amber);
+  }
+
+  /* ── Post-call panel ───────────────────────────── */
+  #postcall-panel {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 11px 14px; display: none;
+  }
+  #postcall-panel .section-label { margin-bottom: 8px; }
+  .postcall-transcript {
+    font-size: 11px; color: var(--slate-400); line-height: 1.6;
+    font-style: italic; max-height: 160px; overflow-y: auto;
+    margin-bottom: 10px; padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .postcall-empty { color: var(--slate-600); font-style: italic; font-size: 10.5px; }
+  .postcall-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .postcall-btn {
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 8px; border: none;
+    cursor: pointer; transition: all 0.15s;
+  }
+  #btn-polish-claude { background: var(--violet); color: #fff; flex: 1; }
+  #btn-polish-claude:hover { background: #c4b5fd; }
+  #btn-copy-transcript {
+    background: rgba(255,255,255,0.06); color: var(--slate-300);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  #btn-copy-transcript:hover { background: rgba(255,255,255,0.1); color: var(--slate-100); }
+
   /* ── Responsive ─────────────────────────────────── */
   @media (max-width: 460px) {
     body { padding: 8px; }
@@ -447,6 +495,13 @@
         <span class="badge-dot"></span><span class="badge-label">Interviewer</span>
       </div>
     </div>
+    <!-- Round preset selector — hidden once recording starts -->
+    <div class="preset-row" id="preset-row">
+      <button class="preset-btn active" data-preset="hrbp">HRBP 45</button>
+      <button class="preset-btn" data-preset="hm">HM 60</button>
+      <button class="preset-btn" data-preset="sd">SD 60</button>
+      <button class="preset-btn" data-preset="peer">Peer 30</button>
+    </div>
     <!-- Mic level meter — shows only when recording -->
     <div class="mic-meter-wrap" id="mic-meter-wrap">
       <canvas id="mic-meter"></canvas>
@@ -464,7 +519,7 @@
     <div class="elapsed" id="elapsed">0 / 45</div>
     <div class="pct" id="pct">0%</div>
     <div class="zone-label" id="zone-label">Press Start Call when the interviewer joins</div>
-    <div class="total-cap">target 45 min · hard stop 60 min</div>
+    <div class="total-cap" id="total-cap">target 45 min · hard stop 60 min</div>
   </div>
 
   <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
@@ -479,6 +534,18 @@
     <div class="section-label">Live transcript</div>
     <div class="transcript-lines" id="transcript-lines">
       <span class="transcript-empty">Waiting for speech…</span>
+    </div>
+  </div>
+
+  <!-- Post-call panel — shown after Reset when transcript exists -->
+  <div id="postcall-panel">
+    <div class="section-label">Post-call</div>
+    <div class="postcall-transcript" id="postcall-transcript">
+      <span class="postcall-empty">No transcript captured this session.</span>
+    </div>
+    <div class="postcall-actions">
+      <button class="postcall-btn" id="btn-copy-transcript">Copy transcript</button>
+      <button class="postcall-btn" id="btn-polish-claude">Polish with Claude</button>
     </div>
   </div>
 
@@ -500,31 +567,80 @@
 <script>
 (() => {
   // ── Config ───────────────────────────────────────────────────────────
-  const ROUND_DURATION = 45 * 60;
-  const HARD_STOP      = 60 * 60;
+  let ROUND_DURATION = 45 * 60;
+  let HARD_STOP      = 60 * 60;
   const CHUNK_INTERVAL = 30_000;
   const LOG_KEY        = 'interview-copilot-log';
   const LOG_MAX        = 500;
 
-  const milestones = [
-    { sec:  2*60, name: 'Self-intro done',           alert: null },
-    { sec:  5*60, name: 'Context & rapport set',     alert: null },
-    { sec: 30*60, name: 'Queue your questions',
-      alert: '"I\'d love the last 10 min for my questions — does that work?"' },
-    { sec: 38*60, name: 'Closing window — pivot now',
-      alert: '"What does success look like in the first 90 days?"' },
-    { sec: 43*60, name: 'Ask: What are next steps?',
-      alert: '"Thanks — what are the next steps from here?"' },
-  ];
+  const PRESETS = {
+    hrbp: {
+      label: 'HRBP · 45 min', round: 45 * 60, hard: 60 * 60,
+      milestones: [
+        { sec:  2*60, name: 'Self-intro done',          alert: null },
+        { sec:  5*60, name: 'Context & rapport set',    alert: null },
+        { sec: 30*60, name: 'Queue your questions',
+          alert: '"I\'d love the last 10 min for my questions — does that work?"' },
+        { sec: 38*60, name: 'Closing window — pivot now',
+          alert: '"What does success look like in the first 90 days?"' },
+        { sec: 43*60, name: 'Ask: What are next steps?',
+          alert: '"Thanks — what are the next steps from here?"' },
+      ],
+    },
+    hm: {
+      label: 'HM · 60 min', round: 60 * 60, hard: 75 * 60,
+      milestones: [
+        { sec:  3*60, name: 'Self-intro done',          alert: null },
+        { sec:  8*60, name: 'Context & rapport set',    alert: null },
+        { sec: 40*60, name: 'Queue your questions',
+          alert: '"I\'d love the last 15 min for my questions — OK?"' },
+        { sec: 52*60, name: 'Closing window — pivot now',
+          alert: '"What does success look like in the first 90 days?"' },
+        { sec: 57*60, name: 'Ask: What are next steps?',
+          alert: '"Thanks — what are the next steps from here?"' },
+      ],
+    },
+    sd: {
+      label: 'System Design · 60 min', round: 60 * 60, hard: 75 * 60,
+      milestones: [
+        { sec:  3*60, name: 'Problem scoped & clarified', alert: null },
+        { sec: 10*60, name: 'High-level design sketched',  alert: null },
+        { sec: 35*60, name: 'Deep dive complete',
+          alert: '"Ready to walk through trade-offs?"' },
+        { sec: 50*60, name: 'Wrap up + bottlenecks',
+          alert: '"Any areas you\'d like me to revisit?"' },
+        { sec: 57*60, name: 'Final questions',
+          alert: '"What are the next steps from here?"' },
+      ],
+    },
+    peer: {
+      label: 'Peer · 30 min', round: 30 * 60, hard: 40 * 60,
+      milestones: [
+        { sec:  2*60, name: 'Self-intro done',          alert: null },
+        { sec: 18*60, name: 'Queue your questions',
+          alert: '"Mind if I ask a few questions?"' },
+        { sec: 27*60, name: 'Ask: What are next steps?',
+          alert: '"Thanks — what are the next steps from here?"' },
+      ],
+    },
+  };
 
-  const phases = [
-    { from: 0,         to: 3*60,      key: 'opening',    label: 'Opening' },
-    { from: 3*60,      to: 30*60,     key: 'discussion', label: 'Discussion' },
-    { from: 30*60,     to: 40*60,     key: 'late',       label: 'Late — queue Qs' },
-    { from: 40*60,     to: 45*60,     key: 'closing',    label: 'Closing' },
-    { from: 45*60,     to: HARD_STOP, key: 'over',       label: 'Overtime — wrap' },
-    { from: HARD_STOP, to: Infinity,  key: 'stopped',    label: 'Hard-stopped' },
-  ];
+  function buildPhases(round, hard) {
+    const open = Math.round(round * 0.06 / 60) * 60 || 2 * 60;
+    const disc = Math.round(round * 0.67 / 60) * 60;
+    const late = Math.round(round * 0.89 / 60) * 60;
+    return [
+      { from: 0,     to: open,     key: 'opening',    label: 'Opening' },
+      { from: open,  to: disc,     key: 'discussion', label: 'Discussion' },
+      { from: disc,  to: late,     key: 'late',       label: 'Late — queue Qs' },
+      { from: late,  to: round,    key: 'closing',    label: 'Closing' },
+      { from: round, to: hard,     key: 'over',       label: 'Overtime — wrap' },
+      { from: hard,  to: Infinity, key: 'stopped',    label: 'Hard-stopped' },
+    ];
+  }
+
+  let milestones = PRESETS.hrbp.milestones;
+  let phases     = buildPhases(ROUND_DURATION, HARD_STOP);
 
   // ── IndexedDB ────────────────────────────────────────────────────────
   const DB_NAME = 'interview-copilot';
@@ -654,8 +770,14 @@
     toast:             $('toast'),
     recoveryModal:     $('recovery-modal'),
     recoveryBody:      $('recovery-body'),
-    btnRecover:        $('btn-recover'),
-    btnDiscard:        $('btn-discard'),
+    btnRecover:         $('btn-recover'),
+    btnDiscard:         $('btn-discard'),
+    presetRow:          $('preset-row'),
+    roundLabel:         $('round-label'),
+    postcallPanel:      $('postcall-panel'),
+    postcallTranscript: $('postcall-transcript'),
+    btnCopyTranscript:  $('btn-copy-transcript'),
+    btnPolishClaude:    $('btn-polish-claude'),
   };
 
   // ── Helpers ──────────────────────────────────────────────────────────
@@ -931,11 +1053,13 @@
       tick(); return;
     }
 
-    // First start
+    // First start — lock in preset, hide selector
+    els.presetRow.classList.add('hidden');
+    els.postcallPanel.style.display = 'none';
     els.startBtn.textContent = 'Starting…'; els.startBtn.disabled = true;
     const ok = await startRecording();
     els.startBtn.disabled = false;
-    if (!ok) { els.startBtn.textContent = 'Start Call'; return; }
+    if (!ok) { els.presetRow.classList.remove('hidden'); els.startBtn.textContent = 'Start Call'; return; }
 
     roundStart = Date.now();
     sessionId  = `session-${roundStart}`;
@@ -960,6 +1084,7 @@
     if (isRecording) stopRecording(true);
     else { updateBadges(); renderTranscriptPreview(); }
     bookmarks = [];
+    els.presetRow.classList.remove('hidden');
   }
 
   // ── Web Speech ────────────────────────────────────────────────────────
@@ -1170,6 +1295,37 @@
     }
     logEvent('SESSION_SAVED');
     if (sessionId) { dbDelete(sessionId); sessionId = null; sessionObj = null; }
+
+    // Show post-call panel
+    showPostCall();
+  }
+
+  function showPostCall() {
+    const allLines = [
+      ...transcriptLines,
+      ...bookmarks.map(b => `[${fmtMMSS(b.sec)}] ★ BOOKMARK`),
+    ].sort((a, b) => {
+      const t = s => { const m = s.match(/^\[(\d+):(\d+)\]/); return m ? +m[1]*60 + +m[2] : 0; };
+      return t(a) - t(b);
+    });
+
+    const raw = allLines.length
+      ? ['Interview Transcript', `Started: ${recStart ? new Date(recStart).toLocaleString() : 'unknown'}`, '', ...allLines].join('\n')
+      : '';
+
+    els.postcallTranscript.dataset.rawText = raw;
+
+    if (allLines.length) {
+      els.postcallTranscript.innerHTML = allLines
+        .slice(-40)  // show last 40 lines to keep panel manageable
+        .map(l => `<div>${l.replace(/</g, '&lt;')}</div>`)
+        .join('');
+    } else {
+      els.postcallTranscript.innerHTML = '<span class="postcall-empty">No transcript captured this session.</span>';
+    }
+
+    els.postcallPanel.style.display = 'block';
+    els.presetRow.classList.remove('hidden');
   }
 
   // ── Crash recovery ────────────────────────────────────────────────────
@@ -1216,11 +1372,58 @@
     else if (e.key === 'e' || e.key === 'E') exportLog();
   });
 
+  // ── Preset selector ───────────────────────────────────────────────────
+  function selectPreset(key) {
+    const p = PRESETS[key];
+    if (!p) return;
+    ROUND_DURATION = p.round;
+    HARD_STOP      = p.hard;
+    milestones     = p.milestones;
+    phases         = buildPhases(p.round, p.hard);
+    els.roundLabel.textContent = p.label;
+    const totalCap = document.getElementById('total-cap');
+    if (totalCap) totalCap.textContent = `target ${p.round/60} min · hard stop ${p.hard/60} min`;
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === key);
+    });
+    renderHero(0); renderProgress(0); renderMilestones(0);
+  }
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!running && !roundStart) selectPreset(btn.dataset.preset);
+    });
+  });
+
+  // ── Post-call actions ─────────────────────────────────────────────────
+  els.btnCopyTranscript.addEventListener('click', () => {
+    const text = els.postcallTranscript.dataset.rawText || '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => showToast('Transcript copied!')).catch(() => {});
+  });
+
+  els.btnPolishClaude.addEventListener('click', () => {
+    const text = els.postcallTranscript.dataset.rawText || '';
+    const prompt = `Here's the transcript from my recent job interview. Please help me:
+
+1. Identify my strongest moments and why they landed well
+2. Flag any weak spots or missed opportunities
+3. Suggest follow-up questions for my thank-you email
+4. What's the one thing I should have said differently?
+
+---
+${text || '(no transcript captured — discuss approach from memory)'}`;
+    navigator.clipboard.writeText(prompt).then(() => {
+      showToast('Prompt copied!');
+      setTimeout(() => window.open('https://claude.ai/new', '_blank'), 400);
+    }).catch(() => window.open('https://claude.ai/new', '_blank'));
+  });
+
   // ── Init ──────────────────────────────────────────────────────────────
   (async () => {
     try { db = await openDB(); } catch {}
     logEvent('APP_OPEN');
-    renderHero(0); renderProgress(0); renderMilestones(0);
+    selectPreset('hrbp');
     updateBadges(); renderTranscriptPreview();
     if (db) await checkIncompleteSessions();
   })();
